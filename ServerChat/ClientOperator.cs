@@ -9,9 +9,11 @@ namespace ServerChat
     internal class ClientOperator
     {
         private readonly StreamReader _reader;
-        private static StreamWriter _writer;
+        private readonly StreamWriter _writer;
+        private TcpClient _client;
         public ClientOperator(TcpClient client)
         {
+            _client = client;
             _reader = new StreamReader(client.GetStream());
             _writer = new StreamWriter(client.GetStream()) { AutoFlush = true };
             StartReading();

@@ -62,13 +62,19 @@ namespace ClientChat
         {
             var thread = new Thread(() =>
             {
-                string recievedMessage = null;
-                while ((recievedMessage = _reader.ReadLine()) != null)
+                try
                 {
-                    var input = JsonConvert.DeserializeObject<MessageStruct>(recievedMessage);
-                    var output = $"{input.UserName} <{input.Pid}> ({input.Date.Hour}) send '{input.Message}' ";
-                    Console.WriteLine(output);
-
+                    string recievedMessage = null;
+                    while ((recievedMessage = _reader.ReadLine()) != null)
+                    {
+                        var input = JsonConvert.DeserializeObject<MessageStruct>(recievedMessage);
+                        var output = $"{input.UserName} <{input.Pid}> ({input.Date.Hour}) send '{input.Message}' ";
+                        Console.WriteLine(output);
+                    }
+                }
+                catch
+                {
+                    Console.WriteLine("Error Server Connection");
                 }
             });
             thread.Start();
