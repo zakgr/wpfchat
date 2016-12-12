@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -14,6 +15,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ChatLib;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace IziChat
 {
@@ -22,18 +25,34 @@ namespace IziChat
     /// </summary>
     public partial class MainWindow : Window
     {
-        private ChatClient _client;
+        public ObservableCollection<MessageInfo> Messages   
+        {
+            get { return (ObservableCollection<MessageInfo>)GetValue(MessagesProperty); }
+            set { SetValue(MessagesProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty MessagesProperty =
+            DependencyProperty.Register("Messages", typeof(ObservableCollection<MessageInfo>), typeof(MainWindow), new PropertyMetadata(null));
+
+
+        private readonly ChatClient _client;
 
         public MainWindow()
         {
             InitializeComponent();
-            _client = new ChatClient(IPAddress.Parse("127.0.0.1"), 3000);
+            ChatSettings settings = null;
+            settings = !File.Exists("settings.json") ? new ChatSettings() {IpAddress = "127.0.0.1", Username = "default"} : JsonConvert.DeserializeObject<ChatSettings>(File.ReadAllText("settings.json"));
+            File.WriteAllText("settings.json", JsonConvert.SerializeObject(settings));
+            _client = new ChatClient(IPAddress.Parse(settings.IpAddress), 3000, settings.Username);
+            Messages = new ObservableCollection<MessageInfo>();
             
         }
 
         private void _client_MessageReceived(object sender, MessageInfo e)
         {
-            ChatTextBlock.Text += e.Message + Environment.NewLine;
+            Messages.Add(e);
+            Scroller.ScrollToBottom();
         }
 
         private void UIElement_OnKeyDown(object sender, KeyEventArgs e)

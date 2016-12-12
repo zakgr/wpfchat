@@ -4,18 +4,30 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:IziChat"
+        xmlns:chatLib="clr-namespace:ChatLib;assembly=ChatLib"
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525"
-        Loaded="MainWindow_OnLoaded">
+        Loaded="MainWindow_OnLoaded"
+        Name="Main">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
-        <ScrollViewer Grid.Row="0"  HorizontalScrollBarVisibility="Disabled">
-        <TextBlock
-                   Name="ChatTextBlock"
-                   ></TextBlock>
+        <ScrollViewer Name="Scroller" Grid.Row="0"  HorizontalScrollBarVisibility="Disabled">
+            <ItemsControl ItemsSource="{Binding ElementName=Main, Path=Messages}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="chatLib:MessageInfo">
+                        <Border Background="Lavender" CornerRadius="3" Margin="4">
+                            <StackPanel Orientation="Vertical" Margin="15,10">
+                                <TextBlock Text="{Binding UserName}" FontWeight="Bold"></TextBlock>
+                                <TextBlock Text="{Binding Message}"></TextBlock>
+                            </StackPanel>
+                            
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </ScrollViewer>
         <TextBox 
             Grid.Row="1" 

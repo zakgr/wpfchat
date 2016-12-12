@@ -30,16 +30,28 @@ namespace ChatLib
                 var client = listener.AcceptTcpClient();
                 var clientOperator = new ClientOperator(client);
                 Connected?.Invoke(this, client);
+                
+                clientOperator.Disconnected += ClientOperator_Disconnected;
+                clientOperator.MessageRecieved += ClientOperator_MessageRecieved;
+                
+                _clients.Add(clientOperator);
                 Broadcast(new MessageInfo()
                 {
                     Type = CommandType.Status,
                     Message = "online",
                     UserName = client.Client.RemoteEndPoint.ToString()
                 });
-                clientOperator.MessageRecieved += ClientOperator_MessageRecieved;
-                
-                _clients.Add(clientOperator);
             }
+        }
+
+        private void ClientOperator_Disconnected(object sender, TcpClient e)
+        {
+            Broadcast(new MessageInfo()
+            {
+                Type = CommandType.Status,
+                Message = "offline",
+                UserName = e.Client.RemoteEndPoint.ToString()
+            });
         }
 
         private void Broadcast(MessageInfo message)

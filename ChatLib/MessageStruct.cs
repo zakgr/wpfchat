@@ -9,11 +9,12 @@ namespace ChatLib
             Type = CommandType.Message;
         }
 
-        public string Message;
-        public int Pid;
-        public string UserName;
-        public DateTime Date;
-        public CommandType Type;
+        public string Message { get; set; }
+        public int Pid { get; set; }
+
+        public string UserName { get; set; }
+        public DateTime Date { get; set; }
+        public CommandType Type { get; set; }
     }
 
     public enum CommandType

@@ -26,11 +26,13 @@ namespace ChatLib
         public event EventHandler Connected;
         public event EventHandler Disconnected;
         public event EventHandler Connecting;
+        private string _username;
 
-        public ChatClient(IPAddress address, int portno)
+        public ChatClient(IPAddress address, int portno, string username)
         {
             _address = address;
             _portno = portno;
+            _username = username;
             _pid = Process.GetCurrentProcess().Id;
         }
 
@@ -66,7 +68,8 @@ namespace ChatLib
                 {
                     Date = DateTime.Now,
                     Message = sendMessage,
-                    Pid = _pid
+                    Pid = _pid,
+                    UserName = _username
                 };
                 var json = JsonConvert.SerializeObject(message);
                 _writer.WriteLine(json);
@@ -74,7 +77,7 @@ namespace ChatLib
             catch
             {
                 Disconnected?.Invoke(this, EventArgs.Empty);
-                Connect();
+                var t = Connect();
             }
         }
 
