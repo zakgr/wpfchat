@@ -26,7 +26,7 @@ namespace ChatLib
         public event EventHandler Connected;
         public event EventHandler Disconnected;
         public event EventHandler Connecting;
-        private string _username;
+        private readonly string _username;
 
         public ChatClient(IPAddress address, int portno, string username)
         {
@@ -69,7 +69,7 @@ namespace ChatLib
                     Date = DateTime.Now,
                     Message = sendMessage,
                     Pid = _pid,
-                    UserName = _username
+                    UserName = _username + "@" + _client.Client.RemoteEndPoint.ToString()
                 };
                 var json = JsonConvert.SerializeObject(message);
                 _writer.WriteLine(json);

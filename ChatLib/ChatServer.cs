@@ -30,7 +30,6 @@ namespace ChatLib
                 var client = listener.AcceptTcpClient();
                 var clientOperator = new ClientOperator(client);
                 Connected?.Invoke(this, client);
-                
                 clientOperator.Disconnected += ClientOperator_Disconnected;
                 clientOperator.MessageRecieved += ClientOperator_MessageRecieved;
                 
@@ -39,7 +38,8 @@ namespace ChatLib
                 {
                     Type = CommandType.Status,
                     Message = "online",
-                    UserName = client.Client.RemoteEndPoint.ToString()
+                    Date = DateTime.Now,
+                    UserName = "@" + client.Client.RemoteEndPoint.ToString()
                 });
             }
         }
@@ -50,7 +50,8 @@ namespace ChatLib
             {
                 Type = CommandType.Status,
                 Message = "offline",
-                UserName = e.Client.RemoteEndPoint.ToString()
+                Date = DateTime.Now,
+                UserName = "@"+ e.Client.RemoteEndPoint.ToString()
             });
         }
 

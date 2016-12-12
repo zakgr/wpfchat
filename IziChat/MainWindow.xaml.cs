@@ -25,6 +25,19 @@ namespace IziChat
     /// </summary>
     public partial class MainWindow : Window
     {
+
+
+        public ObservableCollection<string> OnlineUsers
+        {
+            get { return (ObservableCollection<string>)GetValue(OnlineUsersProperty); }
+            set { SetValue(OnlineUsersProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for OnlineUsersCollection.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty OnlineUsersProperty =
+            DependencyProperty.Register("OnlineUsersCollection", typeof(ObservableCollection<string>), typeof(MainWindow), new PropertyMetadata(null));
+
+
         public ObservableCollection<MessageInfo> Messages   
         {
             get { return (ObservableCollection<MessageInfo>)GetValue(MessagesProperty); }
