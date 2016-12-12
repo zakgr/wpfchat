@@ -66,7 +66,7 @@ namespace ClientChat
                 while ((recievedMessage = _reader.ReadLine()) != null)
                 {
                     var input = JsonConvert.DeserializeObject<MessageStruct>(recievedMessage);
-                    var output = $"{input.UserName } <{input.Pid}> ({input.Date}) ";
+                    var output = $"{input.UserName} <{input.Pid}> ({input.Date.Hour}) send '{input.Message}' ";
                     Console.WriteLine(output);
 
                 }
