@@ -24,8 +24,9 @@ namespace ClientChat
             _writer = new StreamWriter(_client.GetStream());
             _writer.AutoFlush = true;
             message = new MessageStruct();
-            StartReading();
             InitializeUser();
+            StartReading();
+            _client.Connect(message.IP, 3000);
             Write();
         }
 
@@ -52,7 +53,8 @@ namespace ClientChat
             {
                 Console.Write("Give a user name: ");
                 message.UserName = Console.ReadLine();
-                message.IP = Dns.GetHostAddresses(Dns.GetHostName()).First(a => a.AddressFamily == AddressFamily.InterNetwork).ToString();
+                Console.Write("Give Ip Adress of Server: ");
+                message.IP = Console.ReadLine();
                 using (StreamWriter writer = new StreamWriter(configPath, false, Encoding.Default))
                 {
                     writer.Write(JsonConvert.SerializeObject(message));
