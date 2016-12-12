@@ -20,7 +20,7 @@
                     <DataTemplate>
                         <Border Margin="4">
                             <StackPanel Margin="15,10" Orientation="Vertical">
-                                <TextBlock Text=""/>
+                                <TextBlock Text="{Binding}"/>
                             </StackPanel>
                         </Border>
                     </DataTemplate>

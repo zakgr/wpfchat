@@ -59,6 +59,7 @@ namespace IziChat
             File.WriteAllText("settings.json", JsonConvert.SerializeObject(settings));
             _client = new ChatClient(IPAddress.Parse(settings.IpAddress), 3000, settings.Username);
             Messages = new ObservableCollection<MessageInfo>();
+            OnlineUsers = new ObservableCollection<string>();
             
         }
 
