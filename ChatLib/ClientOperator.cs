@@ -1,16 +1,17 @@
 ﻿using System;
 using System.IO;
-using System.Linq.Expressions;
 using System.Net.Sockets;
 using System.Threading;
 
-namespace ServerChat
+namespace ChatLib
 {
     internal class ClientOperator
     {
         private readonly StreamReader _reader;
         private readonly StreamWriter _writer;
-        private TcpClient _client;
+        private readonly TcpClient _client;
+        public event EventHandler<TcpClient> Disconnected;
+
         public ClientOperator(TcpClient client)
         {
             _client = client;
@@ -18,25 +19,32 @@ namespace ServerChat
             _writer = new StreamWriter(client.GetStream()) { AutoFlush = true };
             StartReading();
         }
-        private void StartReading()
+
+        private async void StartReading()
         {
-            var thread = new Thread(() =>
+            try
             {
-                try
+                string recievedMessage = null;
+                while ((recievedMessage = await _reader.ReadLineAsync()) != null)
                 {
-                    string recievedMessage = null;
-                    while ((recievedMessage = _reader.ReadLine()) != null)
-                    {
-                        MessageRecieved?.Invoke(this, recievedMessage);
-                    }
+                    MessageRecieved?.Invoke(this, recievedMessage);
                 }
-                catch {Console.WriteLine("No Client Connected"); }
-            });
-            thread.Start();
+            }
+            catch
+            {
+                Disconnected?.Invoke(this, _client);
+            }
         }
+
         public void Write(string message)
         {
-            _writer.WriteLine(message);
+            try
+            {
+                _writer.WriteLine(message);
+            }
+            catch
+            {
+            }
         }
         public event EventHandler<string> MessageRecieved;
     }

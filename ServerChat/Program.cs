@@ -2,37 +2,23 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using ChatLib;
 
 namespace ServerChat
 {
-    internal class Program
+    public static class Program
     {
-        private static readonly List<ClientOperator> Clients = new List<ClientOperator>();
-        private static void PrintMessage(string msg)
+        private static ChatServer _server;
+        static void Main()
         {
-            Console.WriteLine(msg);
-        }
-        private static void Main(string[] args)
-        {
-            var listener = new TcpListener(IPAddress.Any, 3000);
-            listener.Start();
-
-            while (true)
-            {
-                var client = listener.AcceptTcpClient();
-                var clientOperator = new ClientOperator(client);
-                clientOperator.MessageRecieved += ClientOperator_MessageRecieved;
-                Clients.Add(clientOperator);
-            }
+            _server = new ChatServer(3000);
+            _server.MessageReceived += _server_MessageReceived;
+            _server.Run();
         }
 
-        private static void ClientOperator_MessageRecieved(object sender, string e)
+        private static void _server_MessageReceived(object sender, MessageInfo e)
         {
-            PrintMessage(e);
-            foreach (var client in Clients)
-            {
-                client.Write(e);
-            }
+            Console.WriteLine($"roufianos edw o {e.UserName} eipe {e.Message}");
         }
     }
 }

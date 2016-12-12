@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using ChatLib;
 
 namespace ClientChat
 {
@@ -13,10 +14,10 @@ namespace ClientChat
     {
         private readonly StreamReader _reader;
         private readonly StreamWriter _writer;
-        private MessageStruct _message;
+        private MessageInfo _message;
         public MessageSerialization(TcpClient client)
         {
-            _message = new MessageStruct();
+            _message = new MessageInfo();
             InitializeUser();
             client.Connect(_message.Ip, 3000);
             _reader = new StreamReader(client.GetStream());
@@ -25,17 +26,7 @@ namespace ClientChat
             Write();
         }
 
-        private void Write()
-        {
-            string sendMessage = null;
-            while ((sendMessage = Console.ReadLine()) != null)
-            {
-                _message.Date = DateTime.Now;
-                _message.Message = sendMessage;
-                sendMessage = JsonConvert.SerializeObject(_message);
-                _writer.WriteLine(sendMessage);
-            }
-        }
+        
 
         private void InitializeUser()
         {
@@ -43,7 +34,7 @@ namespace ClientChat
             if (File.Exists(configPath))
             {
                 var configFile = File.ReadAllText(configPath);
-                _message = JsonConvert.DeserializeObject<MessageStruct>(configFile);
+                _message = JsonConvert.DeserializeObject<MessageInfo>(configFile);
             }
             else
             {
@@ -58,6 +49,20 @@ namespace ClientChat
             }
             _message.Pid = Process.GetCurrentProcess().Id;
         }
+
+        private void Write()
+        {
+            string sendMessage = null;
+            while ((sendMessage = Console.ReadLine()) != null)
+            {
+                _message.Date = DateTime.Now;
+                _message.Message = sendMessage;
+                sendMessage = JsonConvert.SerializeObject(_message);
+                _writer.WriteLine(sendMessage);
+            }
+        }
+
+
         private void StartReading()
         {
             var thread = new Thread(() =>
@@ -67,7 +72,7 @@ namespace ClientChat
                     string recievedMessage = null;
                     while ((recievedMessage = _reader.ReadLine()) != null)
                     {
-                        var input = JsonConvert.DeserializeObject<MessageStruct>(recievedMessage);
+                        var input = JsonConvert.DeserializeObject<MessageInfo>(recievedMessage);
                         var output = $"{input.UserName} <{input.Pid}> ({input.Date.Hour}:{input.Date.Minute}) send '{input.Message}' ";
                         Console.WriteLine(output);
                     }
