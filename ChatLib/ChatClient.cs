@@ -48,6 +48,13 @@ namespace ChatLib
                     Connected?.Invoke(this, EventArgs.Empty);
                     _reader = new StreamReader(_client.GetStream());
                     _writer = new StreamWriter(_client.GetStream()) { AutoFlush = true };
+                    _writer.WriteLine(JsonConvert.SerializeObject(new MessageInfo()
+                    {
+                        UserName = _username+ "@"+ _client.Client.LocalEndPoint.ToString(),
+                        Type = CommandType.Status,
+                        Message = "online",
+                        Date = DateTime.Now
+                    }));
                     StartReading();
                 }
                 catch(Exception ex)
@@ -69,7 +76,7 @@ namespace ChatLib
                     Date = DateTime.Now,
                     Message = sendMessage,
                     Pid = _pid,
-                    UserName = _username + "@" + _client.Client.RemoteEndPoint.ToString()
+                    UserName = _username + "@" + _client.Client.LocalEndPoint.ToString()
                 };
                 var json = JsonConvert.SerializeObject(message);
                 _writer.WriteLine(json);

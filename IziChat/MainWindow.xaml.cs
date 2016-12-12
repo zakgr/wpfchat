@@ -35,7 +35,7 @@ namespace IziChat
 
         // Using a DependencyProperty as the backing store for OnlineUsersCollection.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty OnlineUsersProperty =
-            DependencyProperty.Register("OnlineUsersCollection", typeof(ObservableCollection<string>), typeof(MainWindow), new PropertyMetadata(null));
+            DependencyProperty.Register("OnlineUsers", typeof(ObservableCollection<string>), typeof(MainWindow), new PropertyMetadata(null));
 
 
         public ObservableCollection<MessageInfo> Messages   
@@ -65,6 +65,19 @@ namespace IziChat
         private void _client_MessageReceived(object sender, MessageInfo e)
         {
             Messages.Add(e);
+            if (e.Type == CommandType.Status)
+            {
+                if (e.Message == "online")
+                {
+                    OnlineUsers.Add(e.UserName);
+                }
+                else
+                {
+                    OnlineUsers.Remove(e.UserName);
+                }
+
+            }
+            
             Scroller.ScrollToBottom();
         }
 

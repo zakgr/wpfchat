@@ -34,13 +34,7 @@ namespace ChatLib
                 clientOperator.MessageRecieved += ClientOperator_MessageRecieved;
                 
                 _clients.Add(clientOperator);
-                Broadcast(new MessageInfo()
-                {
-                    Type = CommandType.Status,
-                    Message = "online",
-                    Date = DateTime.Now,
-                    UserName = "@" + client.Client.RemoteEndPoint.ToString()
-                });
+                
             }
         }
 
