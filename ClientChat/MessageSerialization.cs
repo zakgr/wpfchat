@@ -2,8 +2,6 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
@@ -11,21 +9,18 @@ using System.Threading;
 
 namespace ClientChat
 {
-    class MessageSerialization
+    public class MessageSerialization
     {
         private static StreamReader _reader;
         private static StreamWriter _writer;
-        private TcpClient _client;
-        private MessageStruct message;
+        private MessageStruct _message;
         public MessageSerialization(TcpClient client)
         {
-            _client = client;
-            message = new MessageStruct();
+            _message = new MessageStruct();
             InitializeUser();
-            _client.Connect(message.IP, 3000);
-            _reader = new StreamReader(_client.GetStream());
-            _writer = new StreamWriter(_client.GetStream());
-            _writer.AutoFlush = true;
+            client.Connect(_message.Ip, 3000);
+            _reader = new StreamReader(client.GetStream());
+            _writer = new StreamWriter(client.GetStream()) { AutoFlush = true };
             StartReading();
             Write();
         }
@@ -35,42 +30,43 @@ namespace ClientChat
             string sendMessage = null;
             while ((sendMessage = Console.ReadLine()) != null)
             {
-                message.Date = DateTime.Now;
-                message.Message = sendMessage;
-                sendMessage = JsonConvert.SerializeObject(message);
+                _message.Date = DateTime.Now;
+                _message.Message = sendMessage;
+                sendMessage = JsonConvert.SerializeObject(_message);
                 _writer.WriteLine(sendMessage);
             }
         }
 
-        private void InitializeUser() {
-            string configPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\config.ini";
+        private void InitializeUser()
+        {
+            var configPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\config.ini";
             if (File.Exists(configPath))
             {
-                string configFile = File.ReadAllText(configPath);
-                message = JsonConvert.DeserializeObject<MessageStruct>(configFile);
+                var configFile = File.ReadAllText(configPath);
+                _message = JsonConvert.DeserializeObject<MessageStruct>(configFile);
             }
             else
             {
                 Console.Write("Give a user name: ");
-                message.UserName = Console.ReadLine();
+                _message.UserName = Console.ReadLine();
                 Console.Write("Give Ip Adress of Server: ");
-                message.IP = Console.ReadLine();
-                using (StreamWriter writer = new StreamWriter(configPath, false, Encoding.Default))
+                _message.Ip = Console.ReadLine();
+                using (var writer = new StreamWriter(configPath, false, Encoding.Default))
                 {
-                    writer.Write(JsonConvert.SerializeObject(message));
+                    writer.Write(JsonConvert.SerializeObject(_message));
                 }
             }
-            message.PID = Process.GetCurrentProcess().Id;
+            _message.Pid = Process.GetCurrentProcess().Id;
         }
-        private void StartReading()
+        private static void StartReading()
         {
-            var thread = new Thread(() => {
+            var thread = new Thread(() =>
+            {
                 string recievedMessage = null;
-                MessageStruct input = new MessageStruct();
                 while ((recievedMessage = _reader.ReadLine()) != null)
                 {
-                    input = JsonConvert.DeserializeObject<MessageStruct>(recievedMessage);
-                    var output = $"{input.UserName } <{input.PID}>({input.Date}) ";
+                    var input = JsonConvert.DeserializeObject<MessageStruct>(recievedMessage);
+                    var output = $"{input.UserName } <{input.Pid}> ({input.Date}) ";
                     Console.WriteLine(output);
 
                 }

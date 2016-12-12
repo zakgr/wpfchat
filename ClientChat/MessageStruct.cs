@@ -2,11 +2,11 @@
 
 namespace ClientChat
 {
-    struct MessageStruct
+    internal struct MessageStruct
     {
         public string Message;
-        public string IP;
-        public int PID;
+        public string Ip;
+        public int Pid;
         public string UserName;
         public DateTime Date;
     }
