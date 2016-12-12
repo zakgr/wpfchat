@@ -20,12 +20,12 @@ namespace ClientChat
         public MessageSerialization(TcpClient client)
         {
             _client = client;
+            message = new MessageStruct();
             InitializeUser();
             _client.Connect(message.IP, 3000);
             _reader = new StreamReader(_client.GetStream());
             _writer = new StreamWriter(_client.GetStream());
             _writer.AutoFlush = true;
-            message = new MessageStruct();
             StartReading();
             Write();
         }
