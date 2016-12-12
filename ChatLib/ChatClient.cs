@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -48,6 +49,7 @@ namespace ChatLib
                     Connected?.Invoke(this, EventArgs.Empty);
                     _reader = new StreamReader(_client.GetStream());
                     _writer = new StreamWriter(_client.GetStream()) { AutoFlush = true };
+                    ChatServer.AddUsers(_username + "@" + _client.Client.LocalEndPoint.ToString());
                     _writer.WriteLine(JsonConvert.SerializeObject(new MessageInfo()
                     {
                         UserName = _username+ "@"+ _client.Client.LocalEndPoint.ToString(),

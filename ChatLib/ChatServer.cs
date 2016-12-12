@@ -11,7 +11,7 @@ namespace ChatLib
         private readonly List<ClientOperator> _clients = new List<ClientOperator>();
         public event EventHandler<MessageInfo> MessageReceived;
         public event EventHandler<TcpClient> Connected;
-
+        public static List<string> Users;
         private readonly int _portno;
 
         public ChatServer(int portno)
@@ -19,10 +19,15 @@ namespace ChatLib
             _portno = portno;
         }
 
+        public static void AddUsers(string u)
+        {
+          Users.Add(u);  
+        }
         
         public void Run()
         {
             var listener = new TcpListener(IPAddress.Any, _portno);
+            Users= new List<string>();
             listener.Start();
 
             while (true)
@@ -53,6 +58,17 @@ namespace ChatLib
         {
             foreach (var client in _clients)
             {
+                if (message.Type == CommandType.Status)
+                {
+                    if (message.Message == "online")
+                    {
+                        message.UserName = "";
+                        foreach (var user in Users)
+                        {
+                            message.UserName += user+",";
+                        }
+                    }
+                }
                 client.Write(JsonConvert.SerializeObject(message));
             }
         }
