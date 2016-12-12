@@ -65,6 +65,7 @@ namespace IziChat
         private void _client_MessageReceived(object sender, MessageInfo e)
         {
             Messages.Add(e);
+            
             if (e.Type == CommandType.Status)
             {
                 if (e.Message == "online")

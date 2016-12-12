@@ -17,10 +17,10 @@
         <ScrollViewer Name="Users" Grid.Row="0"  HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Left" Width="160">
             <ItemsControl ItemsSource="{Binding ElementName=Main, Path=OnlineUsers}">
                 <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="chatLib:MessageInfo">
+                    <DataTemplate>
                         <Border Margin="4">
                             <StackPanel Margin="15,10" Orientation="Vertical">
-                                <TextBlock Text="{Binding UserName}"/>
+                                <TextBlock Text=""/>
                             </StackPanel>
                         </Border>
                     </DataTemplate>
