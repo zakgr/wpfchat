@@ -11,8 +11,8 @@ namespace ClientChat
 {
     public class MessageSerialization
     {
-        private static StreamReader _reader;
-        private static StreamWriter _writer;
+        private readonly StreamReader _reader;
+        private readonly StreamWriter _writer;
         private MessageStruct _message;
         public MessageSerialization(TcpClient client)
         {
@@ -58,7 +58,7 @@ namespace ClientChat
             }
             _message.Pid = Process.GetCurrentProcess().Id;
         }
-        private static void StartReading()
+        private void StartReading()
         {
             var thread = new Thread(() =>
             {
@@ -68,7 +68,7 @@ namespace ClientChat
                     while ((recievedMessage = _reader.ReadLine()) != null)
                     {
                         var input = JsonConvert.DeserializeObject<MessageStruct>(recievedMessage);
-                        var output = $"{input.UserName} <{input.Pid}> ({input.Date.Hour}) send '{input.Message}' ";
+                        var output = $"{input.UserName} <{input.Pid}> ({input.Date.Hour}:{input.Date.Minute}) send '{input.Message}' ";
                         Console.WriteLine(output);
                     }
                 }
