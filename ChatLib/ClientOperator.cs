@@ -12,6 +12,8 @@ namespace ChatLib
         private readonly TcpClient _client;
         public event EventHandler<TcpClient> Disconnected;
 
+        public TcpClient TcpClient => _client;
+
         public ClientOperator(TcpClient client)
         {
             _client = client;

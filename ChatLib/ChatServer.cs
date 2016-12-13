@@ -40,7 +40,7 @@ namespace ChatLib
 
         private void ClientOperator_Disconnected(object sender, TcpClient e)
         {
-            var username = Users.Find(x => x.Contains(e.Client.RemoteEndPoint.ToString()));
+            var username = Users.Find(x => x.Contains((e.Client.RemoteEndPoint as IPEndPoint).Address.ToString()));
             Users.Remove(username);
             Broadcast(new MessageInfo()
             {
@@ -62,18 +62,18 @@ namespace ChatLib
         private void ClientOperator_MessageRecieved(object sender, string e)
         {
             var msgInfo = JsonConvert.DeserializeObject<MessageInfo>(e);
-            InspectMessage(msgInfo);
+            InspectMessage((sender as ClientOperator).TcpClient, msgInfo);
             MessageReceived?.Invoke(this, msgInfo);
             Broadcast(msgInfo);
         }
 
-        private void InspectMessage(MessageInfo msgInfo)
+        private void InspectMessage(TcpClient tcpClient, MessageInfo msgInfo)
         {
             if (msgInfo.Type == CommandType.Status)
             {
                 if (msgInfo.Message == "online")
                 {
-                    Users.Add(msgInfo.UserName);
+                    Users.Add(msgInfo.UserName + "@" + (tcpClient.Client.RemoteEndPoint as IPEndPoint).Address);
                     var loginMessage = new MessageInfo()
                     {
                         Type = CommandType.Users,

@@ -27,25 +27,25 @@ namespace ChatLib
         }
 
         public event EventHandler<MessageInfo> MessageReceived;
-        public event EventHandler<string> Connected;
-        public event EventHandler<string> Disconnected;
-        public event EventHandler<string> Connecting;
+        public event EventHandler Connected;
+        public event EventHandler Disconnected;
+        public event EventHandler Connecting;
 
         public async Task Connect()
         {
             _client = new TcpClient();
-            Connecting?.Invoke(this, "Connecting");
+            Connecting?.Invoke(this, EventArgs.Empty);
             while (!_client.Connected)
                 try
                 {
                     await _client.ConnectAsync(_address.ToString(), _portno);
-                    Connected?.Invoke(this, "Connected");
+                    Connected?.Invoke(this, EventArgs.Empty);
                     _reader = new StreamReader(_client.GetStream());
                     _writer = new StreamWriter(_client.GetStream()) {AutoFlush = true};
                     StartReading();
                     _writer.WriteLine(JsonConvert.SerializeObject(new MessageInfo
                     {
-                        UserName = _username + "@" + _client.Client.LocalEndPoint,
+                        UserName = _username,
                         Type = CommandType.Status,
                         Message = "online",
                         Date = DateTime.Now
@@ -66,14 +66,14 @@ namespace ChatLib
                     Date = DateTime.Now,
                     Message = sendMessage,
                     Pid = _pid,
-                    UserName = _username + "@" + _client.Client.LocalEndPoint
+                    UserName = _username
                 };
                 var json = JsonConvert.SerializeObject(message);
                 _writer.WriteLine(json);
             }
             catch
             {
-                Disconnected?.Invoke(this, "Disconnected");
+                Disconnected?.Invoke(this, EventArgs.Empty);
                 var t = Connect();
             }
         }
@@ -93,7 +93,7 @@ namespace ChatLib
             }
             catch
             {
-                Disconnected?.Invoke(this, "Disconnected");
+                Disconnected?.Invoke(this, EventArgs.Empty);
                 await Connect();
             }
         }
