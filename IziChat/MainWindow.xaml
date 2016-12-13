@@ -31,7 +31,7 @@
             <TabControl>
                 <TabItem Header="Online users">
                     <ScrollViewer Name="Users" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                        <ItemsControl ItemsSource="{Binding ElementName=Main, Path=OnlineUsers}">
+                        <ListBox ItemsSource="{Binding ElementName=Main, Path=OnlineUsers}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border Margin="4">
@@ -44,7 +44,7 @@
                                     </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                        </ListBox>
                     </ScrollViewer>
                 </TabItem>
                 <TabItem Header="Rooms">
