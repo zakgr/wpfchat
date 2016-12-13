@@ -6,38 +6,50 @@
         xmlns:local="clr-namespace:IziChat"
         xmlns:chatLib="clr-namespace:ChatLib;assembly=ChatLib"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525"
+        Title="MainWindow" Height="550" Width="650"
         Loaded="MainWindow_OnLoaded"
-        Name="Main">
+        Name="Main"
+        MinWidth="450"
+        MinHeight="450">
+    <Window.Resources>
+        <ResourceDictionary Source="Styles.xaml" />
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <ScrollViewer Name="Users" Grid.Row="0"  HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Left" Width="160">
-            <ItemsControl ItemsSource="{Binding ElementName=Main, Path=OnlineUsers}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border Margin="4">
-                            <StackPanel Margin="15,10" Orientation="Vertical">
-                                <TextBlock Text="{Binding}" TextWrapping="Wrap"/>
-                            </StackPanel>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
-        <ScrollViewer Name="Scroller" Grid.Row="0"  HorizontalScrollBarVisibility="Disabled" Margin="160,0,0,0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*" MaxWidth="250" MinWidth="150" />
+            <ColumnDefinition Width="3*" />
+        </Grid.ColumnDefinitions>
+        <Border Grid.Row="0" Grid.RowSpan="2" BorderThickness="0,0,1,0" BorderBrush="#44000000" Background="#11000000">
+            <ScrollViewer Name="Users" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl ItemsSource="{Binding ElementName=Main, Path=OnlineUsers}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Margin="4">
+                                <StackPanel Margin="15,10" Orientation="Vertical">
+                                    <TextBlock Text="{Binding}" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Border>
+        <ScrollViewer Name="Scroller" Grid.Row="0" Grid.Column="1" HorizontalScrollBarVisibility="Disabled">
             <ItemsControl ItemsSource="{Binding ElementName=Main, Path=Messages}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="chatLib:MessageInfo">
                         <Border Background="Lavender" CornerRadius="3" Margin="4">
                             <StackPanel Orientation="Vertical" Margin="15,10">
-                                <TextBlock>                                   
-                                     <Run Text="{Binding UserName}" FontWeight="Bold"/>
-                                     <Run Text="("/><Run Text="{Binding Date}"/><Run Text=")"/>
+                                <TextBlock>
+                                    <Run Text="{Binding UserName}" FontWeight="Bold" />
+                                    <Run Text="(" /><Run Text="{Binding Date}" /><Run Text=")" />
                                 </TextBlock>
-                                <TextBlock Text="{Binding Message}" TextWrapping="Wrap"></TextBlock>
+                                <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
                             </StackPanel>
 
                         </Border>
@@ -45,17 +57,31 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
-        <TextBox 
-            Grid.Row="1" 
-            AcceptsReturn="False" 
+        <TextBox
+            Grid.Row="1"
+            Grid.Column="1"
+            AcceptsReturn="False"
             AcceptsTab="False"
             KeyDown="UIElement_OnKeyDown"
             Padding="8"
             TextWrapping="Wrap"
-            >
-
-
-        </TextBox>
-
+            Style="{StaticResource ChatTextBox}" />
+        <StatusBar Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0">
+            <ItemsControl ItemsSource="{Binding ElementName=Main, Path=StatusClient}" Margin="5,5">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="local:StatusConnection">
+                        <StackPanel Orientation="Horizontal">
+                            <StatusBarItem>
+                                <TextBlock Text="{Binding Status}" />
+                            </StatusBarItem>
+                            <StatusBarItem>
+                                <ProgressBar Visibility="{Binding ProgressBarVisiblility}" IsIndeterminate="True"
+                                             Width="200" Height="10" />
+                            </StatusBarItem>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StatusBar>
     </Grid>
 </Window>
