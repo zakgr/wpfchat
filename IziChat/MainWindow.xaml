@@ -25,19 +25,26 @@
             <ColumnDefinition Width="3*" />
         </Grid.ColumnDefinitions>
         <Border Grid.Row="0" Grid.RowSpan="2" BorderThickness="0,0,1,0" BorderBrush="#44000000" Background="#11000000">
-            <ScrollViewer Name="Users" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                <ItemsControl ItemsSource="{Binding ElementName=Main, Path=OnlineUsers}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border Margin="4">
-                                <StackPanel Margin="15,10" Orientation="Vertical">
-                                    <TextBlock Text="{Binding}" TextWrapping="Wrap" />
-                                </StackPanel>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
+            
+            <TabControl>
+                <TabItem Header="Online users">
+                    <ScrollViewer Name="Users" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <ListBox ItemsSource="{Binding ElementName=Main, Path=OnlineUsers}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Margin="4">
+                                        <TextBlock Text="{Binding}" TextWrapping="Wrap" />
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ListBox>
+                    </ScrollViewer>
+                </TabItem>
+                <TabItem Header="Rooms">
+                    
+                </TabItem>
+            </TabControl>
+           
         </Border>
         <ScrollViewer Name="Scroller" Grid.Row="0" Grid.Column="1" HorizontalScrollBarVisibility="Disabled">
             <ItemsControl ItemsSource="{Binding ElementName=Main, Path=Messages}">
