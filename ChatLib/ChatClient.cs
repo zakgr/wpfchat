@@ -49,6 +49,7 @@ namespace ChatLib
                     Connected?.Invoke(this, EventArgs.Empty);
                     _reader = new StreamReader(_client.GetStream());
                     _writer = new StreamWriter(_client.GetStream()) { AutoFlush = true };
+                    StartReading();
                     _writer.WriteLine(JsonConvert.SerializeObject(new MessageInfo()
                     {
                         UserName = _username+ "@"+ _client.Client.LocalEndPoint.ToString(),
@@ -56,7 +57,7 @@ namespace ChatLib
                         Message = "online",
                         Date = DateTime.Now
                     }));
-                    StartReading();
+                    
                 }
                 catch(Exception ex)
                 {
@@ -95,6 +96,7 @@ namespace ChatLib
             try
             {
                 string recievedMessage = null;
+                Console.WriteLine("Listening");
                 while ((recievedMessage = await _reader.ReadLineAsync()) != null)
                 {
                     var input = JsonConvert.DeserializeObject<MessageInfo>(recievedMessage);

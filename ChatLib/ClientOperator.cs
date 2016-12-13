@@ -17,10 +17,10 @@ namespace ChatLib
             _client = client;
             _reader = new StreamReader(client.GetStream());
             _writer = new StreamWriter(client.GetStream()) { AutoFlush = true };
-            StartReading();
+           
         }
 
-        private async void StartReading()
+        public async void StartReading()
         {
             try
             {

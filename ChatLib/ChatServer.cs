@@ -31,12 +31,10 @@ namespace ChatLib
                 var client = listener.AcceptTcpClient();
                 var clientOperator = new ClientOperator(client);
                 Connected?.Invoke(this, client);
-
+                _clients.Add(clientOperator);
                 clientOperator.Disconnected += ClientOperator_Disconnected;
                 clientOperator.MessageRecieved += ClientOperator_MessageRecieved;
-
-                _clients.Add(clientOperator);
-
+                clientOperator.StartReading();
             }
         }
 
@@ -55,11 +53,27 @@ namespace ChatLib
 
         private void Broadcast(MessageInfo message)
         {
-            if (message.Type == CommandType.Status)
+            foreach (var client in _clients)
             {
-                if (message.Message == "online")
+                client.Write(JsonConvert.SerializeObject(message));
+            }
+        }
+
+        private void ClientOperator_MessageRecieved(object sender, string e)
+        {
+            var msgInfo = JsonConvert.DeserializeObject<MessageInfo>(e);
+            InspectMessage(msgInfo);
+            MessageReceived?.Invoke(this, msgInfo);
+            Broadcast(msgInfo);
+        }
+
+        private void InspectMessage(MessageInfo msgInfo)
+        {
+            if (msgInfo.Type == CommandType.Status)
+            {
+                if (msgInfo.Message == "online")
                 {
-                    Users.Add(message.UserName);
+                    Users.Add(msgInfo.UserName);
                     var loginMessage = new MessageInfo()
                     {
                         Type = CommandType.Users,
@@ -73,19 +87,6 @@ namespace ChatLib
                     }
                 }
             }
-            foreach (var client in _clients)
-            {
-                client.Write(JsonConvert.SerializeObject(message));
-            }
-        }
-
-
-
-        private void ClientOperator_MessageRecieved(object sender, string e)
-        {
-            var msgInfo = JsonConvert.DeserializeObject<MessageInfo>(e);
-            MessageReceived?.Invoke(this, msgInfo);
-            Broadcast(msgInfo);
         }
     }
 }
