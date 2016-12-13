@@ -5,14 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:IziChat"
         xmlns:chatLib="clr-namespace:ChatLib;assembly=ChatLib"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="MainWindow" Height="550" Width="650"
-        Loaded="MainWindow_OnLoaded"
+        Title="ClientChat" Height="550" Width="650"
+        Loaded="ClientChat_OnLoaded"
         Name="Main"
         MinWidth="450"
         MinHeight="450">
     <Window.Resources>
-        <ResourceDictionary Source="Styles.xaml" />
+        <ResourceDictionary Source="StyleDirectory/Styles.xaml" />
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -24,20 +25,26 @@
             <ColumnDefinition Width="1*" MaxWidth="250" MinWidth="150" />
             <ColumnDefinition Width="3*" />
         </Grid.ColumnDefinitions>
+        
         <Border Grid.Row="0" Grid.RowSpan="2" BorderThickness="0,0,1,0" BorderBrush="#44000000" Background="#11000000">
             
             <TabControl>
                 <TabItem Header="Online users">
                     <ScrollViewer Name="Users" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                        <ListBox ItemsSource="{Binding ElementName=Main, Path=OnlineUsers}">
+                        <ItemsControl ItemsSource="{Binding ElementName=Main, Path=OnlineUsers}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border Margin="4">
-                                        <TextBlock Text="{Binding}" TextWrapping="Wrap" />
+                                        <StackPanel Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="Account"/>
+                                            <TextBlock Text="{Binding}" TextWrapping="Wrap" />
+                                        </StackPanel>
+
+                                            
                                     </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
-                        </ListBox>
+                        </ItemsControl>
                     </ScrollViewer>
                 </TabItem>
                 <TabItem Header="Rooms">

@@ -106,7 +106,7 @@ namespace IziChat
             txt.Text = "";
         }
 
-        private async void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
+        private async void ClientChat_OnLoaded(object sender, RoutedEventArgs e)
         {
             _client.Connecting += _client_Connecting;
             _client.Connected += _client_Connected;

@@ -51,7 +51,7 @@ namespace ChatLib
                         Date = DateTime.Now
                     }));
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     await Task.Delay(5000);
                 }
