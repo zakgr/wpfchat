@@ -19,6 +19,7 @@ namespace ChatLib
 
     public enum CommandType
     {
+        Users,
         Message,
         Status,
         Room

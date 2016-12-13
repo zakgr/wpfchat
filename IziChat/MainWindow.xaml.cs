@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -38,7 +39,7 @@ namespace IziChat
             DependencyProperty.Register("OnlineUsers", typeof(ObservableCollection<string>), typeof(MainWindow), new PropertyMetadata(null));
 
 
-        public ObservableCollection<MessageInfo> Messages   
+        public ObservableCollection<MessageInfo> Messages
         {
             get { return (ObservableCollection<MessageInfo>)GetValue(MessagesProperty); }
             set { SetValue(MessagesProperty, value); }
@@ -55,31 +56,32 @@ namespace IziChat
         {
             InitializeComponent();
             ChatSettings settings = null;
-            settings = !File.Exists("settings.json") ? new ChatSettings() {IpAddress = "127.0.0.1", Username = "default"} : JsonConvert.DeserializeObject<ChatSettings>(File.ReadAllText("settings.json"));
+            settings = !File.Exists("settings.json") ? new ChatSettings() { IpAddress = "127.0.0.1", Username = "default" } : JsonConvert.DeserializeObject<ChatSettings>(File.ReadAllText("settings.json"));
             File.WriteAllText("settings.json", JsonConvert.SerializeObject(settings));
             _client = new ChatClient(IPAddress.Parse(settings.IpAddress), 3000, settings.Username);
             Messages = new ObservableCollection<MessageInfo>();
             OnlineUsers = new ObservableCollection<string>();
-            
+
         }
 
         private void _client_MessageReceived(object sender, MessageInfo e)
         {
-            Messages.Add(e);
-            
-            if (e.Type == CommandType.Status)
+            if (e.Type == CommandType.Users)
             {
-                if (e.Message == "online")
+                var users = JsonConvert.DeserializeObject<List<string>>(e.Message);
+                foreach (var user in users)
                 {
-                    OnlineUsers.Add(e.UserName);
+                    if (!OnlineUsers.Contains(user)) OnlineUsers.Add(user);
                 }
-                else
+            }
+            else
+            {
+                if (e.Type == CommandType.Status && e.Message == "offline")
                 {
                     OnlineUsers.Remove(e.UserName);
                 }
-
+                Messages.Add(e);
             }
-            
             Scroller.ScrollToBottom();
         }
 
