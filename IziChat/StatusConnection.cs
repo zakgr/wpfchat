@@ -1,15 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace IziChat
 {
-    public class StatusConnection
+    public class StatusConnection :INotifyPropertyChanged
     {
-        public string Status { get; set; }
-        public string ProgressBarVisiblility { get; set; }
+        private string _status;
+        public string Status
+        {
+            get { return _status; }
+            set
+            {
+                _status = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Status"));
+            }
+        }
 
+        private Visibility _progressVisibility;
+
+        public Visibility ProgressBarVisiblility
+        {
+            get { return _progressVisibility; }
+            set
+            {
+                _progressVisibility = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ProgressBarVisiblility"));
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

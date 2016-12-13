@@ -67,21 +67,15 @@
             TextWrapping="Wrap"
             Style="{StaticResource ChatTextBox}" />
         <StatusBar Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0">
-            <ItemsControl ItemsSource="{Binding ElementName=Main, Path=StatusClient}" Margin="5,5">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="local:StatusConnection">
-                        <StackPanel Orientation="Horizontal">
-                            <StatusBarItem>
-                                <TextBlock Text="{Binding Status}" />
-                            </StatusBarItem>
-                            <StatusBarItem>
-                                <ProgressBar Visibility="{Binding ProgressBarVisiblility}" IsIndeterminate="True"
+            <StackPanel Orientation="Horizontal">
+                <StatusBarItem>
+                    <TextBlock Text="{Binding ElementName=Main, Path=StatusClient.Status}" />
+                </StatusBarItem>
+                <StatusBarItem>
+                    <ProgressBar Visibility="{Binding ElementName=Main,  Path=StatusClient.ProgressBarVisiblility}" IsIndeterminate="True"
                                              Width="200" Height="10" />
-                            </StatusBarItem>
-                        </StackPanel>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                </StatusBarItem>
+            </StackPanel>
         </StatusBar>
     </Grid>
 </Window>

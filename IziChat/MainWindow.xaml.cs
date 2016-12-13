@@ -26,17 +26,16 @@ namespace IziChat
     /// </summary>
     public partial class MainWindow : Window
     {
-        private StatusConnection _statusClient;
 
-        public ObservableCollection<StatusConnection> StatusClient
+        public StatusConnection StatusClient
         {
-            get { return (ObservableCollection<StatusConnection>)GetValue(StatusClientProperty); }
+            get { return (StatusConnection)GetValue(StatusClientProperty); }
             set { SetValue(StatusClientProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for StatusClienCollection.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty StatusClientProperty =
-            DependencyProperty.Register("StatusClient", typeof(ObservableCollection<StatusConnection>), typeof(MainWindow), new PropertyMetadata(null));
+            DependencyProperty.Register("StatusClient", typeof(StatusConnection), typeof(MainWindow), new PropertyMetadata(null));
 
 
         public ObservableCollection<string> OnlineUsers
@@ -73,8 +72,8 @@ namespace IziChat
             //_client.
             Messages = new ObservableCollection<MessageInfo>();
             OnlineUsers = new ObservableCollection<string>();
-            _statusClient = new StatusConnection();
-            StatusClient = new ObservableCollection<StatusConnection>();
+
+            StatusClient = new StatusConnection();
         }
 
         private void _client_MessageReceived(object sender, MessageInfo e)
@@ -109,20 +108,32 @@ namespace IziChat
 
         private async void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
         {
-            _client.Connecting += _client_Status;
-            _client.Connected += _client_Status;
-            _client.Disconnected += _client_Status;
+            _client.Connecting += _client_Connecting;
+            _client.Connected += _client_Connected;
+            _client.Disconnected += _client_Disconnected;
             await _client.Connect();
             _client.MessageReceived += _client_MessageReceived;
         }
 
-        private void _client_Status(object sender, string e)
+        private void _client_Disconnected(object sender, EventArgs e)
         {
-            _statusClient.Status = e;
-            _statusClient.ProgressBarVisiblility = (e == "Connecting") ? "Visible" : "Collapsed";
-            if (e == "Connecting") OnlineUsers.Clear();
-            StatusClient.Clear();
-            StatusClient.Add(_statusClient);
+            StatusClient.Status = "Disconnected";
+            StatusClient.ProgressBarVisiblility =Visibility.Collapsed;
+            OnlineUsers.Clear();
         }
+
+        private void _client_Connected(object sender, EventArgs e)
+        {
+            StatusClient.Status = "Connected";
+            StatusClient.ProgressBarVisiblility = Visibility.Collapsed;
+        }
+
+        private void _client_Connecting(object sender, EventArgs e)
+        {
+            StatusClient.Status = "Connecting";
+            StatusClient.ProgressBarVisiblility = Visibility.Visible;
+        }
+
+       
     }
 }
