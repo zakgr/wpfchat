@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace ChatLib
 {
@@ -8,10 +9,8 @@ namespace ChatLib
         {
             Type = CommandType.Message;
         }
-
+        public List<string> UsersRecipient { get; set; }
         public string Message { get; set; }
-        public int Pid { get; set; }
-
         public string UserName { get; set; }
         public DateTime Date { get; set; }
         public CommandType Type { get; set; }

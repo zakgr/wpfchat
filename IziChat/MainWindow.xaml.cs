@@ -38,15 +38,15 @@ namespace IziChat
             DependencyProperty.Register("StatusClient", typeof(StatusConnection), typeof(MainWindow), new PropertyMetadata(null));
 
 
-        public ObservableCollection<string> OnlineUsers
+        public ObservableCollection<UserSelection> OnlineUsers
         {
-            get { return (ObservableCollection<string>)GetValue(OnlineUsersProperty); }
+            get { return (ObservableCollection<UserSelection>)GetValue(OnlineUsersProperty); }
             set { SetValue(OnlineUsersProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for OnlineUsersCollection.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty OnlineUsersProperty =
-            DependencyProperty.Register("OnlineUsers", typeof(ObservableCollection<string>), typeof(MainWindow), new PropertyMetadata(null));
+            DependencyProperty.Register("OnlineUsers", typeof(ObservableCollection<UserSelection>), typeof(MainWindow), new PropertyMetadata(null));
 
 
         public ObservableCollection<MessageInfo> Messages
@@ -71,7 +71,7 @@ namespace IziChat
             _client = new ChatClient(IPAddress.Parse(settings.IpAddress), 3000, settings.Username);
             //_client.
             Messages = new ObservableCollection<MessageInfo>();
-            OnlineUsers = new ObservableCollection<string>();
+            OnlineUsers = new ObservableCollection<UserSelection>();
 
             StatusClient = new StatusConnection();
         }
@@ -81,16 +81,22 @@ namespace IziChat
             if (e.Type == CommandType.Users)
             {
                 var users = JsonConvert.DeserializeObject<List<string>>(e.Message);
+                List<string> localusers = new List<string>();
+                foreach (var onlineUser in OnlineUsers)
+                {
+                    localusers.Add(onlineUser.UserName);
+                }
                 foreach (var user in users)
                 {
-                    if (!OnlineUsers.Contains(user)) OnlineUsers.Add(user);
+                    UserSelection userSelection = new UserSelection() { UserName = user, IsSelected = false };
+                    if (!localusers.Contains(user)) OnlineUsers.Add(userSelection);
                 }
             }
             else
             {
                 if (e.Type == CommandType.Status && e.Message == "offline")
                 {
-                    OnlineUsers.Remove(e.UserName);
+                    OnlineUsers.Remove(OnlineUsers.Single(user => user.UserName == e.UserName));
                 }
                 Messages.Add(e);
             }
@@ -101,8 +107,17 @@ namespace IziChat
         {
             if (e.Key != Key.Return) return;
             var txt = (sender as TextBox);
+           
             if (txt == null) return;
-            _client.Write(txt.Text);
+            else if (txt.Text.StartsWith("/"))
+            {
+             CreateRoom(txt.Text);  
+             
+            }
+            else
+            {
+                _client.SendMessage(txt.Text, OnlineUsers.Where(user => user.IsSelected).Select(user => user.UserName).ToList());
+            }
             txt.Text = "";
         }
 
@@ -118,7 +133,7 @@ namespace IziChat
         private void _client_Disconnected(object sender, EventArgs e)
         {
             StatusClient.Status = "Disconnected";
-            StatusClient.ProgressBarVisiblility =Visibility.Collapsed;
+            StatusClient.ProgressBarVisiblility = Visibility.Collapsed;
             OnlineUsers.Clear();
         }
 
@@ -134,6 +149,15 @@ namespace IziChat
             StatusClient.ProgressBarVisiblility = Visibility.Visible;
         }
 
-       
+        private void CreateRoom(string text)
+        {
+           _client.CreateRoom(text,OnlineUsers.Where(user => user.IsSelected).Select(user=>user.UserName).ToList());
+        }
+
+        private void MenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            var txt = (sender as TextBox) ?? new TextBox() {Text = ""};
+            CreateRoom(txt.Text);
+        }
     }
 }

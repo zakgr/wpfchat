@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -18,6 +20,7 @@ namespace ChatLib
         private StreamReader _reader;
         private StreamWriter _writer;
         public string Status;
+
         public ChatClient(IPAddress address, int portno, string username)
         {
             _address = address;
@@ -41,7 +44,7 @@ namespace ChatLib
                     await _client.ConnectAsync(_address.ToString(), _portno);
                     Connected?.Invoke(this, EventArgs.Empty);
                     _reader = new StreamReader(_client.GetStream());
-                    _writer = new StreamWriter(_client.GetStream()) {AutoFlush = true};
+                    _writer = new StreamWriter(_client.GetStream()) { AutoFlush = true };
                     StartReading();
                     _writer.WriteLine(JsonConvert.SerializeObject(new MessageInfo
                     {
@@ -57,25 +60,56 @@ namespace ChatLib
                 }
         }
 
-        public void Write(string sendMessage)
+        private void Write(MessageInfo msg)
         {
             try
             {
-                var message = new MessageInfo
-                {
-                    Date = DateTime.Now,
-                    Message = sendMessage,
-                    Pid = _pid,
-                    UserName = _username
-                };
-                var json = JsonConvert.SerializeObject(message);
+                var json = JsonConvert.SerializeObject(msg);
                 _writer.WriteLine(json);
             }
-            catch
+            catch (Exception)
             {
                 Disconnected?.Invoke(this, EventArgs.Empty);
                 var t = Connect();
             }
+        }
+
+        public void CreateRoom(string sendMessage,List<string> usernames)
+        {
+
+            var message = new MessageInfo
+            {
+                Date = DateTime.Now,
+                Message = "",
+                Type = CommandType.Room,
+                UserName = _username,
+                UsersRecipient = usernames
+            };
+            Write(message);
+
+        }
+
+        public void SendMessage(string sendMessage, List<string> usernames)
+        {
+            if (usernames == null | usernames?.Count==0)
+            {
+                usernames = new List<string>();
+                usernames.Add("All");
+            }
+            else
+            {
+                var localuser = _username + "@" + _client.Client.LocalEndPoint.ToString();
+                if (!usernames.Any(user=>user.Contains(localuser))) usernames.Add(localuser);
+            }            
+            var message = new MessageInfo
+            {
+                Date = DateTime.Now,
+                Message = sendMessage,
+                Type = CommandType.Message,
+                UserName = _username,
+                UsersRecipient = usernames
+            };
+            Write(message);
         }
 
 

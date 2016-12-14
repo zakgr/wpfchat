@@ -11,7 +11,14 @@
         Loaded="ClientChat_OnLoaded"
         Name="Main"
         MinWidth="450"
-        MinHeight="450">
+        MinHeight="450"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{DynamicResource MaterialDesignFont}">
     <Window.Resources>
         <ResourceDictionary Source="StyleDirectory/Styles.xaml" />
     </Window.Resources>
@@ -25,33 +32,67 @@
             <ColumnDefinition Width="1*" MaxWidth="250" MinWidth="150" />
             <ColumnDefinition Width="3*" />
         </Grid.ColumnDefinitions>
-        
+
         <Border Grid.Row="0" Grid.RowSpan="2" BorderThickness="0,0,1,0" BorderBrush="#44000000" Background="#11000000">
-            
+
             <TabControl>
                 <TabItem Header="Online users">
-                    <ScrollViewer Name="Users" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <ScrollViewer Name="Users" VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
+                        <!--
                         <ListBox ItemsSource="{Binding ElementName=Main, Path=OnlineUsers}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border Margin="4">
                                         <StackPanel Orientation="Horizontal">
-                                        <materialDesign:PackIcon Kind="Account"/>
+                                            
                                             <TextBlock Text="{Binding}" TextWrapping="Wrap" />
                                         </StackPanel>
-
-                                            
                                     </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ListBox>
+                    -->
+                        <ItemsControl ItemsSource="{Binding ElementName=Main, Path=OnlineUsers}"
+                                      Grid.IsSharedSizeScope="True">
+                            <ItemsControl.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Create Room" Click="MenuItem_OnClick">
+                                        
+                                    </MenuItem>
+                                </ContextMenu>
+                            </ItemsControl.ContextMenu>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="local:UserSelection">
+                                    <Border x:Name="Border" Padding="5" BorderThickness="0 0 0 1"
+                                            BorderBrush="{DynamicResource MaterialDesignDivider}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition SharedSizeGroup="Checkerz" />
+                                                <ColumnDefinition />
+                                            </Grid.ColumnDefinitions>
+                                            <ToggleButton VerticalAlignment="Center" IsChecked="{Binding IsSelected}"
+                                                          Style="{StaticResource MaterialDesignActionLightToggleButton}"
+                                                           />
+                                            <TextBlock Grid.Column="1" Text="{Binding UserName}" VerticalAlignment="Center"
+                                                       Padding="4" />
+
+                                        </Grid>
+                                    </Border>
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                            <Setter TargetName="Border" Property="Background"
+                                                    Value="{DynamicResource MaterialDesignSelection}" />
+                                        </DataTrigger>
+                                    </DataTemplate.Triggers>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                     </ScrollViewer>
                 </TabItem>
-                <TabItem Header="Rooms">
-                    
-                </TabItem>
+                <TabItem Header="Rooms" />
             </TabControl>
-           
+
         </Border>
         <ScrollViewer Name="Scroller" Grid.Row="0" Grid.Column="1" HorizontalScrollBarVisibility="Disabled">
             <ItemsControl ItemsSource="{Binding ElementName=Main, Path=Messages}">
@@ -86,8 +127,9 @@
                     <TextBlock Text="{Binding ElementName=Main, Path=StatusClient.Status}" />
                 </StatusBarItem>
                 <StatusBarItem>
-                    <ProgressBar Visibility="{Binding ElementName=Main,  Path=StatusClient.ProgressBarVisiblility}" IsIndeterminate="True"
-                                             Width="200" Height="10" />
+                    <ProgressBar Visibility="{Binding ElementName=Main,  Path=StatusClient.ProgressBarVisiblility}"
+                                 IsIndeterminate="True"
+                                 Width="200" Height="10" />
                 </StatusBarItem>
             </StackPanel>
         </StatusBar>
