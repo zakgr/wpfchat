@@ -72,33 +72,44 @@ namespace IziChat
             //_client.
             Messages = new ObservableCollection<MessageInfo>();
             OnlineUsers = new ObservableCollection<UserSelection>();
-
+            
             StatusClient = new StatusConnection();
         }
 
         private void _client_MessageReceived(object sender, MessageInfo e)
         {
-            if (e.Type == CommandType.Users)
+            switch (e.Type)
             {
-                var users = JsonConvert.DeserializeObject<List<string>>(e.Message);
-                List<string> localusers = new List<string>();
-                foreach (var onlineUser in OnlineUsers)
+                case CommandType.Users:
                 {
-                    localusers.Add(onlineUser.UserName);
+                    var users = JsonConvert.DeserializeObject<List<string>>(e.Message);
+                    List<string> localusers = new List<string>();
+                    foreach (var onlineUser in OnlineUsers)
+                    {
+                        localusers.Add(onlineUser.UserName);
+                    }
+                    foreach (var user in users)
+                    {
+                        UserSelection userSelection = new UserSelection() { UserName = user, IsSelected = false };
+                        if (!localusers.Contains(user)) OnlineUsers.Add(userSelection);
+                    }
                 }
-                foreach (var user in users)
+                    break;
+                case CommandType.Room:
                 {
-                    UserSelection userSelection = new UserSelection() { UserName = user, IsSelected = false };
-                    if (!localusers.Contains(user)) OnlineUsers.Add(userSelection);
+                    var users = e.UsersRecipient;
                 }
-            }
-            else
-            {
-                if (e.Type == CommandType.Status && e.Message == "offline")
-                {
-                    OnlineUsers.Remove(OnlineUsers.Single(user => user.UserName == e.UserName));
-                }
-                Messages.Add(e);
+                    break;
+                case CommandType.Status:
+                    if (e.Message == "offline")
+                    {
+                        OnlineUsers.Remove(OnlineUsers.Single(user => user.UserName == e.UserName));
+                    }
+                    Messages.Add(e);
+                    break;
+                default:
+                    Messages.Add(e);
+                    break;
             }
             Scroller.ScrollToBottom();
         }
@@ -108,15 +119,15 @@ namespace IziChat
             if (e.Key != Key.Return) return;
             var txt = (sender as TextBox);
            
-            if (txt == null) return;
-            else if (txt.Text.StartsWith("/"))
+            if (txt == null || txt?.Text.Trim()=="") return;
+            else if (txt.Text.Trim().StartsWith("/"))
             {
-             CreateRoom(txt.Text);  
+             CreateRoom(txt.Text.Trim());  
              
             }
             else
             {
-                _client.SendMessage(txt.Text, OnlineUsers.Where(user => user.IsSelected).Select(user => user.UserName).ToList());
+                _client.SendMessage(txt.Text.Trim(), OnlineUsers.Where(user => user.IsSelected).Select(user => user.UserName).ToList());
             }
             txt.Text = "";
         }

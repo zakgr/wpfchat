@@ -21,6 +21,20 @@ namespace ChatLib
         private StreamWriter _writer;
         public string Status;
 
+        private List<string> _usernames(List<string> u)
+        {
+            if (u == null | u?.Count == 0)
+            {
+                u = new List<string>();
+                u.Add("All");
+            }
+            else
+            {
+                var localuser = _username + "@" + _client.Client.LocalEndPoint.ToString();
+                if (!u.Any(user => user.Contains(localuser))) u.Add(localuser);
+            }
+            return u;
+        } 
         public ChatClient(IPAddress address, int portno, string username)
         {
             _address = address;
@@ -76,14 +90,14 @@ namespace ChatLib
 
         public void CreateRoom(string sendMessage,List<string> usernames)
         {
-
+            var userlist = _usernames(usernames);
             var message = new MessageInfo
             {
                 Date = DateTime.Now,
                 Message = "",
                 Type = CommandType.Room,
                 UserName = _username,
-                UsersRecipient = usernames
+                UsersRecipient = userlist
             };
             Write(message);
 
@@ -91,23 +105,14 @@ namespace ChatLib
 
         public void SendMessage(string sendMessage, List<string> usernames)
         {
-            if (usernames == null | usernames?.Count==0)
-            {
-                usernames = new List<string>();
-                usernames.Add("All");
-            }
-            else
-            {
-                var localuser = _username + "@" + _client.Client.LocalEndPoint.ToString();
-                if (!usernames.Any(user=>user.Contains(localuser))) usernames.Add(localuser);
-            }            
+            var userlist = _usernames(usernames);
             var message = new MessageInfo
             {
                 Date = DateTime.Now,
                 Message = sendMessage,
                 Type = CommandType.Message,
                 UserName = _username,
-                UsersRecipient = usernames
+                UsersRecipient = userlist
             };
             Write(message);
         }

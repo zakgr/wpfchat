@@ -8,6 +8,7 @@ namespace ChatLib
         public MessageInfo()
         {
             Type = CommandType.Message;
+            UsersRecipient = new List<string>();
         }
         public List<string> UsersRecipient { get; set; }
         public string Message { get; set; }

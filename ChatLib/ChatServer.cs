@@ -71,22 +71,28 @@ namespace ChatLib
         private void ClientOperator_MessageRecieved(object sender, string e)
         {
             var msgInfo = JsonConvert.DeserializeObject<MessageInfo>(e);
-            InspectMessage((sender as ClientOperator).TcpClient, msgInfo);
-            MessageReceived?.Invoke(this, msgInfo);
-            if (msgInfo.UsersRecipient == null) Broadcast(msgInfo);
-            else if (msgInfo.UsersRecipient.Any(user => user.Contains("All"))) Broadcast(msgInfo);
-            else UniCast(msgInfo);
+            
+            InspectMessage((sender as ClientOperator)?.TcpClient, msgInfo);
         }
 
         private void InspectMessage(TcpClient tcpClient, MessageInfo msgInfo)
         {
-            if (msgInfo.Type == CommandType.Status)
+            switch (msgInfo.Type)
             {
-                StatusType(tcpClient, msgInfo);
-            }
-            else if (msgInfo.Type == CommandType.Room)
-            {
-                RoomType(msgInfo);
+                case CommandType.Status:
+                    StatusType(tcpClient, msgInfo);
+                    break;
+                case CommandType.Room:
+                    RoomType(msgInfo);
+                    break;
+                case CommandType.Users:
+                case CommandType.Message:
+                default:
+                    MessageReceived?.Invoke(this, msgInfo);
+                    if (msgInfo.UsersRecipient.Any(user => user.Contains("All")) || msgInfo.UsersRecipient.Count == 0)
+                        Broadcast(msgInfo);
+                    else UniCast(msgInfo);
+                    break;
             }
         }
 
@@ -100,17 +106,14 @@ namespace ChatLib
                 UserName = msgInfo.UserName,
                 UsersRecipient = msgInfo.UsersRecipient
             };
-
-            foreach (var client in _clients)
-            {
-                var clientname = client.TcpClient.Client.RemoteEndPoint.ToString();
-                if (msgInfo.UsersRecipient.Any(user => user.Contains(clientname)))
-                    client.Write(JsonConvert.SerializeObject(roomMessage));
-            }
+            MessageReceived?.Invoke(this, roomMessage);
+            UniCast(roomMessage);
         }
 
         private void StatusType(TcpClient tcpClient, MessageInfo msgInfo)
         {
+            MessageReceived?.Invoke(this, msgInfo);
+            Broadcast(msgInfo);
             if (msgInfo.Message == "online")
             {
                 Users.Add(msgInfo.UserName + "@" + (tcpClient.Client.RemoteEndPoint as IPEndPoint), tcpClient);
@@ -121,10 +124,7 @@ namespace ChatLib
                     Date = DateTime.Now,
                     UserName = "Users"
                 };
-                foreach (var client in _clients)
-                {
-                    client.Write(JsonConvert.SerializeObject(loginMessage));
-                }
+                Broadcast(loginMessage);
             }
         }
     }
