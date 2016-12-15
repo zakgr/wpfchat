@@ -53,8 +53,10 @@
     <Compile Include="ChatClient.cs" />
     <Compile Include="ChatServer.cs" />
     <Compile Include="ClientOperator.cs" />
-    <Compile Include="ExtensionMethod.cs" />
+    <Compile Include="ExtensionMethods.cs" />
     <Compile Include="MessageStruct.cs" />
+    <Compile Include="Models\Command.cs" />
+    <Compile Include="Models\StatusData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

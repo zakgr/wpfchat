@@ -17,6 +17,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ChatLib;
 using System.IO;
+using ChatLib.Models;
 using Newtonsoft.Json;
 
 namespace IziChat
@@ -26,6 +27,14 @@ namespace IziChat
     /// </summary>
     public partial class MainWindow : Window
     {
+        public class MessageViewModel
+        {
+            public DateTime DateTime { get; set; }
+
+            public string Username { get; set; }
+
+            public string Message { get; set; }
+        }
 
         public StatusConnection StatusClient
         {
@@ -49,15 +58,15 @@ namespace IziChat
             DependencyProperty.Register("OnlineUsers", typeof(ObservableCollection<UserSelection>), typeof(MainWindow), new PropertyMetadata(null));
 
 
-        public ObservableCollection<MessageInfo> Messages
+        public ObservableCollection<MessageViewModel> Messages
         {
-            get { return (ObservableCollection<MessageInfo>)GetValue(MessagesProperty); }
+            get { return (ObservableCollection<MessageViewModel>)GetValue(MessagesProperty); }
             set { SetValue(MessagesProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty MessagesProperty =
-            DependencyProperty.Register("Messages", typeof(ObservableCollection<MessageInfo>), typeof(MainWindow), new PropertyMetadata(null));
+            DependencyProperty.Register("Messages", typeof(ObservableCollection<MessageViewModel>), typeof(MainWindow), new PropertyMetadata(null));
 
 
         private readonly ChatClient _client;
@@ -70,47 +79,38 @@ namespace IziChat
             File.WriteAllText("settings.json", JsonConvert.SerializeObject(settings));
             _client = new ChatClient(IPAddress.Parse(settings.IpAddress), 3000, settings.Username);
             //_client.
-            Messages = new ObservableCollection<MessageInfo>();
+            Messages = new ObservableCollection<MessageViewModel>();
             OnlineUsers = new ObservableCollection<UserSelection>();
             
             StatusClient = new StatusConnection();
         }
 
-        private void _client_MessageReceived(object sender, MessageInfo e)
+        private void _client_MessageReceived(object sender, Command<BroadcastMessage> e)
         {
-            switch (e.Type)
-            {
-                case CommandType.Users:
-                {
-                    var users = JsonConvert.DeserializeObject<List<string>>(e.Message);
-                    List<string> localusers = new List<string>();
-                    foreach (var onlineUser in OnlineUsers)
-                    {
-                        localusers.Add(onlineUser.UserName);
-                    }
-                    foreach (var user in users)
-                    {
-                        UserSelection userSelection = new UserSelection() { UserName = user, IsSelected = false };
-                        if (!localusers.Contains(user)) OnlineUsers.Add(userSelection);
-                    }
-                }
-                    break;
-                case CommandType.Room:
-                {
-                    var users = e.UsersRecipient;
-                }
-                    break;
-                case CommandType.Status:
-                    if (e.Message == "offline")
-                    {
-                        OnlineUsers.Remove(OnlineUsers.Single(user => user.UserName == e.UserName));
-                    }
-                    Messages.Add(e);
-                    break;
-                default:
-                    Messages.Add(e);
-                    break;
-            }
+        //    switch (e.Type)
+        //    {
+        //        case CommandType.Users:
+        //        {
+        //            var users = JsonConvert.DeserializeObject<List<string>>(e.Message);
+        //            List<string> localusers = new List<string>();
+        //            foreach (var onlineUser in OnlineUsers)
+        //            {
+        //                localusers.Add(onlineUser.UserName);
+        //            }
+        //            foreach (var user in users)
+        //            {
+        //                UserSelection userSelection = new UserSelection() { UserName = user, IsSelected = false };
+        //                if (!localusers.Contains(user)) OnlineUsers.Add(userSelection);
+        //            }
+        //        }
+        //            break;
+        //        case CommandType.Room:
+        //        {
+        //            var users = e.UsersRecipient;
+        //        }
+        //            break;
+               
+        //    }
             Scroller.ScrollToBottom();
         }
 
@@ -118,16 +118,16 @@ namespace IziChat
         {
             if (e.Key != Key.Return) return;
             var txt = (sender as TextBox);
-           
-            if (txt == null || txt?.Text.Trim()=="") return;
-            else if (txt.Text.Trim().StartsWith("/"))
+
+            if (txt == null || txt?.Text.Trim() == "") return;
+            if (txt.Text.Trim().StartsWith("/"))
             {
-             CreateRoom(txt.Text.Trim());  
-             
+                CreateRoom(txt.Text.Trim());
+
             }
             else
             {
-                _client.SendMessage(txt.Text.Trim(), OnlineUsers.Where(user => user.IsSelected).Select(user => user.UserName).ToList());
+                _client.SendBroadcastMessage(txt.Text.Trim());
             }
             txt.Text = "";
         }
@@ -138,7 +138,29 @@ namespace IziChat
             _client.Connected += _client_Connected;
             _client.Disconnected += _client_Disconnected;
             await _client.Connect();
-            _client.MessageReceived += _client_MessageReceived;
+            _client.BroadcastMessageReceived += _client_BroadcastMessageReceived;
+            _client.ClientStatusChanged += _client_ClientStatusChanged;
+            _client.StatusReport += _client_StatusReport;
+        }
+
+        private void _client_StatusReport(object sender, Command<StatusReport> e)
+        {
+            OnlineUsers =
+                new ObservableCollection<UserSelection>(e.Data.Usernames.Select(u => new UserSelection() {UserName = u}));
+        }
+
+        private void _client_ClientStatusChanged(object sender, Command<ClientStatusChangedData> e)
+        {
+            if (e.Data.Status == "offline")
+            {
+                OnlineUsers.Remove(OnlineUsers.Single(user => user.UserName == e.Data.Username));
+            }
+            OnlineUsers.Add(new UserSelection() {UserName = e.Data.Username});
+        }
+
+        private void _client_BroadcastMessageReceived(object sender, Command<BroadcastMessage> e)
+        {
+            Messages.Add(new MessageViewModel() { Username = e.Data.Username, DateTime = e.DateTime, Message = e.Data.Message});
         }
 
         private void _client_Disconnected(object sender, EventArgs e)

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using ChatLib.Models;
 using Newtonsoft.Json;
 
 namespace ChatLib
@@ -43,7 +44,10 @@ namespace ChatLib
             _pid = Process.GetCurrentProcess().Id;
         }
 
-        public event EventHandler<MessageInfo> MessageReceived;
+        public event EventHandler<Command<BroadcastMessage>> BroadcastMessageReceived;
+        public event EventHandler<Command<ClientStatusChangedData>> ClientStatusChanged;
+        public event EventHandler<Command<StatusReport>> StatusReport;
+
         public event EventHandler Connected;
         public event EventHandler Disconnected;
         public event EventHandler Connecting;
@@ -60,13 +64,11 @@ namespace ChatLib
                     _reader = new StreamReader(_client.GetStream());
                     _writer = new StreamWriter(_client.GetStream()) { AutoFlush = true };
                     StartReading();
-                    _writer.WriteLine(JsonConvert.SerializeObject(new MessageInfo
+                    _writer.WriteLine(JsonConvert.SerializeObject(Command.CreateCommand(CommandType.StatusChange, new ClientStatusChangedData()
                     {
-                        UserName = _username,
-                        Type = CommandType.Status,
-                        Message = "online",
-                        Date = DateTime.Now
-                    }));
+                        Status = "online",
+                        Username = _username
+                    })));
                 }
                 catch (Exception)
                 {
@@ -74,7 +76,7 @@ namespace ChatLib
                 }
         }
 
-        private void Write(MessageInfo msg)
+        private void Write<T>(Command<T> msg)
         {
             try
             {
@@ -90,31 +92,27 @@ namespace ChatLib
 
         public void CreateRoom(string sendMessage,List<string> usernames)
         {
-            var userlist = _usernames(usernames);
-            var message = new MessageInfo
-            {
-                Date = DateTime.Now,
-                Message = "",
-                Type = CommandType.Room,
-                UserName = _username,
-                UsersRecipient = userlist
-            };
-            Write(message);
+            //var userlist = _usernames(usernames);
+            //var message = new MessageInfo
+            //{
+            //    Date = DateTime.Now,
+            //    Message = "",
+            //    Type = CommandType.Room,
+            //    UserName = _username,
+            //    UsersRecipient = userlist
+            //};
+            //Write(message);
 
         }
 
-        public void SendMessage(string sendMessage, List<string> usernames)
+        public void SendBroadcastMessage(string sendMessage)
         {
-            var userlist = _usernames(usernames);
-            var message = new MessageInfo
+            var command = Command.CreateCommand(CommandType.BroadcastMessage, new BroadcastMessage()
             {
-                Date = DateTime.Now,
-                Message = sendMessage,
-                Type = CommandType.Message,
-                UserName = _username,
-                UsersRecipient = userlist
-            };
-            Write(message);
+                Message = sendMessage
+            });
+           
+            Write(command);
         }
 
 
@@ -126,8 +124,19 @@ namespace ChatLib
                 Console.WriteLine("Listening");
                 while ((recievedMessage = await _reader.ReadLineAsync()) != null)
                 {
-                    var input = JsonConvert.DeserializeObject<MessageInfo>(recievedMessage);
-                    MessageReceived?.Invoke(this, input);
+                    var input = JsonConvert.DeserializeObject<Command<object>>(recievedMessage);
+                    switch (input.CommandType)
+                    {
+                        case CommandType.BroadcastMessage:
+                            BroadcastMessageReceived?.Invoke(this, JsonConvert.DeserializeObject<Command<BroadcastMessage>>(recievedMessage));
+                            break;
+                        case CommandType.StatusReport:
+                            StatusReport?.Invoke(this, JsonConvert.DeserializeObject<Command<StatusReport>>(recievedMessage));
+                            break;
+                        case CommandType.StatusChange:
+                            ClientStatusChanged?.Invoke(this, JsonConvert.DeserializeObject<Command<ClientStatusChangedData>>(recievedMessage));
+                            break;
+                    }
                 }
             }
             catch

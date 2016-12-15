@@ -9,9 +9,9 @@ namespace ChatLib
 {
     static class ExtensionMethods
     {
-        public static string FindByClient(this Dictionary<string, TcpClient> dict, TcpClient client)
+        public static string FindByClient(this Dictionary<string, ClientOperator> dict, TcpClient client)
         {
-            return dict.First(kv => kv.Value == client).Key;
+            return dict.First(kv => kv.Value.TcpClient == client).Key;
         }
     }
 }

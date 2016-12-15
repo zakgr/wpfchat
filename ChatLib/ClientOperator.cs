@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace ChatLib
 {
-    internal class ClientOperator
+    public class ClientOperator
     {
         private readonly StreamReader _reader;
         private readonly StreamWriter _writer;
@@ -29,7 +29,7 @@ namespace ChatLib
                 string recievedMessage = null;
                 while ((recievedMessage = await _reader.ReadLineAsync()) != null)
                 {
-                    MessageRecieved?.Invoke(this, recievedMessage);
+                    DataReceived?.Invoke(this, recievedMessage);
                 }
             }
             catch
@@ -48,6 +48,6 @@ namespace ChatLib
             {
             }
         }
-        public event EventHandler<string> MessageRecieved;
+        public event EventHandler<string> DataReceived;
     }
 }
