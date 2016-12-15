@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace ChatLib
 {
-    public class ClientOperator
+    public class ClientOperator 
     {
         private readonly StreamReader _reader;
         private readonly StreamWriter _writer;
@@ -32,7 +32,7 @@ namespace ChatLib
                     DataReceived?.Invoke(this, recievedMessage);
                 }
             }
-            catch
+            catch(InvalidOperationException)
             {
                 Disconnected?.Invoke(this, _client);
             }

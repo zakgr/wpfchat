@@ -85,8 +85,8 @@ namespace IziChat
             StatusClient = new StatusConnection();
         }
 
-        private void _client_MessageReceived(object sender, Command<BroadcastMessage> e)
-        {
+        //private void _client_MessageReceived(object sender, Command<BroadcastMessage> e)
+        //{
         //    switch (e.Type)
         //    {
         //        case CommandType.Users:
@@ -111,8 +111,8 @@ namespace IziChat
         //            break;
                
         //    }
-            Scroller.ScrollToBottom();
-        }
+         //   Scroller.ScrollToBottom();
+       // }
 
         private void UIElement_OnKeyDown(object sender, KeyEventArgs e)
         {
@@ -138,29 +138,29 @@ namespace IziChat
             _client.Connected += _client_Connected;
             _client.Disconnected += _client_Disconnected;
             await _client.Connect();
-            _client.BroadcastMessageReceived += _client_BroadcastMessageReceived;
-            _client.ClientStatusChanged += _client_ClientStatusChanged;
-            _client.StatusReport += _client_StatusReport;
+            _client.On<BroadcastMessage>(_client_BroadcastMessageReceived);
+            _client.On<ClientStatusChanged>(_client_ClientStatusChanged);
+            _client.On<StatusReport>(_client_StatusReport);
         }
 
-        private void _client_StatusReport(object sender, Command<StatusReport> e)
+        private void _client_StatusReport(object sender, StatusReport e)
         {
             OnlineUsers =
-                new ObservableCollection<UserSelection>(e.Data.Usernames.Select(u => new UserSelection() {UserName = u}));
+                new ObservableCollection<UserSelection>(e.Usernames.Select(u => new UserSelection() {UserName = u}));
         }
 
-        private void _client_ClientStatusChanged(object sender, Command<ClientStatusChangedData> e)
+        private void _client_ClientStatusChanged(object sender, ClientStatusChanged e)
         {
-            if (e.Data.Status == "offline")
+            if (e.Status == "offline")
             {
-                OnlineUsers.Remove(OnlineUsers.Single(user => user.UserName == e.Data.Username));
+                OnlineUsers.Remove(OnlineUsers.Single(user => user.UserName == e.Username));
             }
-            OnlineUsers.Add(new UserSelection() {UserName = e.Data.Username});
+            OnlineUsers.Add(new UserSelection() {UserName = e.Username});
         }
 
-        private void _client_BroadcastMessageReceived(object sender, Command<BroadcastMessage> e)
+        private void _client_BroadcastMessageReceived(object sender, BroadcastMessage e)
         {
-            Messages.Add(new MessageViewModel() { Username = e.Data.Username, DateTime = e.DateTime, Message = e.Data.Message});
+            Messages.Add(new MessageViewModel() { Username = e.Username, DateTime = e.DateTime, Message = e.Message});
         }
 
         private void _client_Disconnected(object sender, EventArgs e)

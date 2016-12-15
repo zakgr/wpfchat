@@ -7,30 +7,11 @@ using System.Threading.Tasks;
 namespace ChatLib.Models
 {
 
-    public enum CommandType
-    {
-        StatusReport,
-        StatusChange,
-        BroadcastMessage,
-        RoomMessage,
-        CreateRoom,
-        Invite
-    }
-
-
-    /// <summary>
-    /// Sent by clients when their status changes.
-    /// </summary>
-    public class StatusData
-    {
-        public string Status { get; set; }
-        public string Username { get; set; }
-    }
 
     /// <summary>
     /// Sent by server to clients when a client's status changes.
     /// </summary>
-    public class ClientStatusChangedData
+    public class ClientStatusChanged : BaseCommand
     {
         public string Status { get; set; }
         public string Username { get; set; }
@@ -40,26 +21,25 @@ namespace ChatLib.Models
     /// <summary>
     /// Sent to all clients to report online users.
     /// </summary>
-    public class StatusReport
+    public class StatusReport : BaseCommand
     {
         public List<string> Usernames { get; set; }
     }
 
-
-    public class BroadcastMessage
+    public class BroadcastMessage : BaseCommand
     {
         public string Message { get; set; }
         public string Username { get; set; }
     }
 
-    public class RoomMessage
+    public class RoomMessage : BaseCommand
     {
         public string Message { get; set; }
         public string Room { get; set; }
 
     }
 
-    public class CreateRoom
+    public class CreateRoom : BaseCommand
     {
         public List<string> Users { get; set; }
 

@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace ChatLib
 {
-    public class ChatServer
+    public class ChatServer : CommandHandler
     {
         //public event EventHandler<MessageInfo> MessageReceived;
         public event EventHandler<TcpClient> Connected;
@@ -19,6 +19,8 @@ namespace ChatLib
         public ChatServer(int portno)
         {
             _portno = portno;
+            On<ClientStatusChanged>(OnStatusChanged);
+            On<BroadcastMessage>(OnBroadcastMessage);
         }
 
         public void Run()
@@ -26,6 +28,7 @@ namespace ChatLib
             var listener = new TcpListener(IPAddress.Any, _portno);
             Users = new Dictionary<string, ClientOperator>();
             listener.Start();
+
 
             while (true)
             {
@@ -44,40 +47,39 @@ namespace ChatLib
             var username = Users.FindByClient(e);
             Users.Remove(username);
 
-            var statusReport = Command.CreateCommand(
-                CommandType.StatusChange,
-                new ClientStatusChangedData()
-                {
-                    Status = "offline",
-                    Username = username
-                });
-            Broadcast(statusReport);
+            Broadcast(new ClientStatusChanged()
+            {
+                Status = "offline",
+                Username = username
+            });
         }
 
-        private void Broadcast<T>(Command<T> message)
+        
+        private void Broadcast(BaseCommand message)
         {
             foreach (var client in Users.Select(kv=>kv.Value))
             {
-                client.Write(JsonConvert.SerializeObject(message));
+                client.Write(JsonConvert.SerializeObject(new CommandWrapper() { Type = message.GetType(), Overhead = message }));
             }
         }
 
-        private void UniCast<T>(Command<T> message, List<string> users )
+        private void UniCast(BaseCommand message, ICollection<string> users)
         {
             foreach (var client in Users.Where(kv => users.Contains(kv.Key)).Select(kv => kv.Value))
             {
-                client.Write(JsonConvert.SerializeObject(message));
+                client.Write(JsonConvert.SerializeObject(new CommandWrapper() { Type = message.GetType(), Overhead = message }));
             }
         }
 
         private void ClientOperator_DataReceived(object sender, string e)
         {
-            var command = JsonConvert.DeserializeObject<Command<object>>(e);
-            
-            InspectMessage(sender as ClientOperator, command.CommandType, e);
-        }
+            var generalCommand = JsonConvert.DeserializeObject<CommandWrapper>(e);
+            var command = JsonConvert.DeserializeObject(generalCommand.Overhead.ToString(), generalCommand.Type);
+            Invoke(sender, command as BaseCommand);
 
-        private void InspectMessage(ClientOperator tcpClient, CommandType type, string json)
+        }
+        /*
+        private void InspectMessage(ClientOperator tcpClient, BaseCommand)
         {
             switch (type)
             {
@@ -98,6 +100,7 @@ namespace ChatLib
                     break;
             }
         }
+        
 
         private void RoomType(Command<CreateRoom> msgInfo)
         {
@@ -112,30 +115,37 @@ namespace ChatLib
             };
             MessageReceived?.Invoke(this, roomMessage);
             UniCast(roomMessage);
-            */
+            
         }
 
-       
+       */
 
-        private void StatusType(ClientOperator tcpClient, Command<StatusData> msgInfo)
+        private void OnBroadcastMessage(object sender, BroadcastMessage e)
         {
-            //MessageReceived?.Invoke(this, msgInfo);
-            var command = Command.CreateCommand(CommandType.StatusChange, new ClientStatusChangedData()
+            e.Username = Users.FindByClient((sender as ClientOperator).TcpClient);
+            Broadcast(e);
+        }
+
+        private void OnStatusChanged(object client, ClientStatusChanged e)
+        {
+            var oper = client as ClientOperator;
+            if (oper == null) return;
+            Broadcast(new ClientStatusChanged()
             {
-                Status = msgInfo.Data.Status,
-                Username = msgInfo.Data.Username + "@" + (tcpClient.TcpClient.Client.RemoteEndPoint as IPEndPoint)
+                Status = e.Status,
+                Username = e.Username + "@" + (oper.TcpClient.Client.RemoteEndPoint as IPEndPoint)
             });
-            Broadcast(command);
-            if (msgInfo.Data.Status == "online")
+            if (e.Status == "online")
             {
-                var username = msgInfo.Data.Username + "@" + (tcpClient.TcpClient.Client.RemoteEndPoint as IPEndPoint);
-                Users.Add(username, tcpClient);
-                var statusReport = Command.CreateCommand<StatusReport>(CommandType.StatusReport, new StatusReport()
+                var username = e.Username + "@" + (oper.TcpClient.Client.RemoteEndPoint as IPEndPoint);
+                Users.Add(username, oper);
+
+                UniCast(new StatusReport()
                 {
                     Usernames = Users.Keys.ToList()
-                });
-                UniCast(statusReport, new List<string>() { username });
+                }, new List<string>() {username});
             }
         }
+
     }
 }

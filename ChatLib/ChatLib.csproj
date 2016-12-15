@@ -53,6 +53,7 @@
     <Compile Include="ChatClient.cs" />
     <Compile Include="ChatServer.cs" />
     <Compile Include="ClientOperator.cs" />
+    <Compile Include="CommandHandler.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="MessageStruct.cs" />
     <Compile Include="Models\Command.cs" />

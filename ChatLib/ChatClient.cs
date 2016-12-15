@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace ChatLib
 {
-    public class ChatClient
+    public class ChatClient:CommandHandler
     {
         private readonly IPAddress _address;
         private readonly int _pid;
@@ -44,9 +44,6 @@ namespace ChatLib
             _pid = Process.GetCurrentProcess().Id;
         }
 
-        public event EventHandler<Command<BroadcastMessage>> BroadcastMessageReceived;
-        public event EventHandler<Command<ClientStatusChangedData>> ClientStatusChanged;
-        public event EventHandler<Command<StatusReport>> StatusReport;
 
         public event EventHandler Connected;
         public event EventHandler Disconnected;
@@ -64,11 +61,11 @@ namespace ChatLib
                     _reader = new StreamReader(_client.GetStream());
                     _writer = new StreamWriter(_client.GetStream()) { AutoFlush = true };
                     StartReading();
-                    _writer.WriteLine(JsonConvert.SerializeObject(Command.CreateCommand(CommandType.StatusChange, new ClientStatusChangedData()
+                    Write(new ClientStatusChanged()
                     {
                         Status = "online",
                         Username = _username
-                    })));
+                    });
                 }
                 catch (Exception)
                 {
@@ -76,11 +73,11 @@ namespace ChatLib
                 }
         }
 
-        private void Write<T>(Command<T> msg)
+        private void Write(BaseCommand msg)
         {
             try
             {
-                var json = JsonConvert.SerializeObject(msg);
+                var json = JsonConvert.SerializeObject(new CommandWrapper() { Type = msg.GetType(), Overhead  = msg});
                 _writer.WriteLine(json);
             }
             catch (Exception)
@@ -107,11 +104,10 @@ namespace ChatLib
 
         public void SendBroadcastMessage(string sendMessage)
         {
-            var command = Command.CreateCommand(CommandType.BroadcastMessage, new BroadcastMessage()
+            var command =  new BroadcastMessage()
             {
                 Message = sendMessage
-            });
-           
+            };
             Write(command);
         }
 
@@ -124,19 +120,9 @@ namespace ChatLib
                 Console.WriteLine("Listening");
                 while ((recievedMessage = await _reader.ReadLineAsync()) != null)
                 {
-                    var input = JsonConvert.DeserializeObject<Command<object>>(recievedMessage);
-                    switch (input.CommandType)
-                    {
-                        case CommandType.BroadcastMessage:
-                            BroadcastMessageReceived?.Invoke(this, JsonConvert.DeserializeObject<Command<BroadcastMessage>>(recievedMessage));
-                            break;
-                        case CommandType.StatusReport:
-                            StatusReport?.Invoke(this, JsonConvert.DeserializeObject<Command<StatusReport>>(recievedMessage));
-                            break;
-                        case CommandType.StatusChange:
-                            ClientStatusChanged?.Invoke(this, JsonConvert.DeserializeObject<Command<ClientStatusChangedData>>(recievedMessage));
-                            break;
-                    }
+                    var input = JsonConvert.DeserializeObject<CommandWrapper>(recievedMessage);
+                    var command = JsonConvert.DeserializeObject(input.Overhead.ToString(), input.Type) as BaseCommand;
+                    Invoke(_client, command);
                 }
             }
             catch

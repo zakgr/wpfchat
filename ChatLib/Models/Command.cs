@@ -6,25 +6,22 @@ using System.Threading.Tasks;
 
 namespace ChatLib.Models
 {
-    public class Command<T>
+
+    public class CommandWrapper
     {
-        public CommandType CommandType { get; set; }
+        public Type Type { get; set; }
 
-        public DateTime DateTime { get; set; }
+        public object Overhead { get; set; }
 
-        public T Data { get; set; }
     }
 
-    static class Command
+    public abstract class BaseCommand
     {
-        public static Command<T> CreateCommand<T>(CommandType type, T t)
+        protected BaseCommand()
         {
-            return new Command<T>()
-            {
-                CommandType = type,
-                DateTime = DateTime.Now,
-                Data = t
-            };
+            DateTime = DateTime.Now;
         }
+
+        public DateTime DateTime { get; set; }
     }
 }
