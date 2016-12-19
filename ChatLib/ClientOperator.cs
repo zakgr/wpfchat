@@ -36,6 +36,11 @@ namespace ChatLib
             {
                 Disconnected?.Invoke(this, _client);
             }
+            catch(IOException)
+            {
+                Disconnected?.Invoke(this, _client);
+            }
+
         }
 
         public void Write(string message)
@@ -46,6 +51,7 @@ namespace ChatLib
             }
             catch
             {
+                // ignored
             }
         }
         public event EventHandler<string> DataReceived;
