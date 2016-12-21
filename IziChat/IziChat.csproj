@@ -79,7 +79,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ConverterOneChar.cs" />
+    <Compile Include="Converters\ConverterOneChar.cs" />
+    <Compile Include="Converters\ConverterUserCheck.cs" />
     <Compile Include="MessageControl.cs" />
     <Compile Include="MockMessages.cs" />
     <Compile Include="UserSelection.cs" />
