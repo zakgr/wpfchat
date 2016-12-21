@@ -17,13 +17,13 @@ namespace IziChat
                     new MainWindow.MessageViewModel()
                     {
                         DateTime = DateTime.Now,
-                        Username = "john",
+                        Username = "jos",
                         Message = "asdf"
                     },
                     new MainWindow.MessageViewModel()
                     {
                         DateTime = DateTime.Now,
-                        Username = "john",
+                        Username = "default",
                         Message = "asdf"
                     }
                     ,
