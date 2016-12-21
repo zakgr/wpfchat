@@ -8,6 +8,7 @@
                       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                       xmlns:models="clr-namespace:ChatLib.Models;assembly=ChatLib"
                       xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                      xmlns:converters="clr-namespace:IziChat.Converters"
                       mc:Ignorable="d"
                       Title="ClientChat" Height="550" Width="650"
                       Loaded="ClientChat_OnLoaded"
@@ -28,7 +29,8 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="StyleDirectory/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <local:ConverterOneChar x:Key="ConverterOneChar" />
+            <converters:ConverterOneChar x:Key="ConverterOneChar" />
+            <converters:ConverterUserCheck x:Key="ConverterUserCheck"/>
             <local:MockMessages x:Key="MockMessages"/>
         </ResourceDictionary>
     </Window.Resources>
@@ -116,8 +118,14 @@
                             Message="{Binding Message}" 
                             Datetime="{Binding DateTime,StringFormat=HH:mm}"
                             UserName="{Binding Username}" 
-                            IconLocation="1">
-                            
+                            >
+                            <local:MessageControl.HorizontalAlignment>
+                                <MultiBinding Converter="{StaticResource ConverterUserCheck}">
+                                    <Binding Path="Username"></Binding>
+                                    <Binding ElementName="Main" Path="Settings.Username"></Binding>
+                                    <Binding ElementName="Main" Path="Ip"></Binding>
+                                </MultiBinding>
+                            </local:MessageControl.HorizontalAlignment>
                         </local:MessageControl>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>

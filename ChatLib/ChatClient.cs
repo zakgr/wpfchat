@@ -21,7 +21,7 @@ namespace ChatLib
         private StreamReader _reader;
         private StreamWriter _writer;
         public string Status;
-
+        public TcpClient TcpClient => _client;
         private List<string> _usernames(List<string> u)
         {
             if (u == null | u?.Count == 0)

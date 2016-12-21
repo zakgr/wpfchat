@@ -72,13 +72,29 @@ namespace IziChat
 
         private readonly ChatClient _client;
 
+        public static readonly DependencyProperty IpProperty = DependencyProperty.Register(
+            "Ip", typeof(string), typeof(MainWindow), new PropertyMetadata(default(string)));
+
+        public string Ip
+        {
+            get { return (string) GetValue(IpProperty); }
+            set { SetValue(IpProperty, value); }
+        }
+        public static readonly DependencyProperty SettingsProperty = DependencyProperty.Register(
+            "Settings", typeof(ChatSettings), typeof(MainWindow), new PropertyMetadata(default(ChatSettings)));
+
+        public ChatSettings Settings
+        {
+            get { return (ChatSettings) GetValue(SettingsProperty); }
+            set { SetValue(SettingsProperty, value); }
+        }
         public MainWindow()
         {
+            
             InitializeComponent();
-            ChatSettings settings = null;
-            settings = !File.Exists("settings.json") ? new ChatSettings() { IpAddress = "127.0.0.1", Username = "default" } : JsonConvert.DeserializeObject<ChatSettings>(File.ReadAllText("settings.json"));
-            File.WriteAllText("settings.json", JsonConvert.SerializeObject(settings));
-            _client = new ChatClient(IPAddress.Parse(settings.IpAddress), 3000, settings.Username);
+            Settings = !File.Exists("settings.json") ? new ChatSettings() { IpAddress = "127.0.0.1", Username = "default" } : JsonConvert.DeserializeObject<ChatSettings>(File.ReadAllText("settings.json"));
+            File.WriteAllText("settings.json", JsonConvert.SerializeObject(Settings));
+            _client = new ChatClient(IPAddress.Parse(Settings.IpAddress), 3000, Settings.Username);
             //_client.
             Messages = new ObservableCollection<MessageViewModel>();
             OnlineUsers = new ObservableCollection<UserSelection>();
@@ -175,6 +191,7 @@ namespace IziChat
         {
             StatusClient.Status = "Connected";
             StatusClient.ProgressBarVisiblility = Visibility.Collapsed;
+            Ip = "@" + (_client.TcpClient.Client.LocalEndPoint as IPEndPoint).ToString();
         }
 
         private void _client_Connecting(object sender, EventArgs e)
