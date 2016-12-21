@@ -18,6 +18,7 @@ using System.Windows.Shapes;
 using ChatLib;
 using System.IO;
 using ChatLib.Models;
+using MahApps.Metro.Controls;
 using Newtonsoft.Json;
 
 namespace IziChat
@@ -25,7 +26,7 @@ namespace IziChat
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : MetroWindow
     {
         public class MessageViewModel
         {
@@ -191,6 +192,11 @@ namespace IziChat
         {
             var txt = (sender as TextBox) ?? new TextBox() {Text = ""};
             CreateRoom(txt.Text);
+        }
+
+        private void OnContentChanged(object sender, SizeChangedEventArgs e)
+        {
+
         }
     }
 }

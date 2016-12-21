@@ -1,27 +1,35 @@
-﻿<Window x:Class="IziChat.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:IziChat"
-        xmlns:chatLib="clr-namespace:ChatLib;assembly=ChatLib"
-        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        xmlns:models="clr-namespace:ChatLib.Models;assembly=ChatLib"
-        mc:Ignorable="d"
-        Title="ClientChat" Height="550" Width="650"
-        Loaded="ClientChat_OnLoaded"
-        Name="Main"
-        MinWidth="450"
-        MinHeight="450"
-        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
-        TextElement.FontWeight="Regular"
-        TextElement.FontSize="13"
-        TextOptions.TextFormattingMode="Ideal"
-        TextOptions.TextRenderingMode="Auto"
-        Background="{DynamicResource MaterialDesignPaper}"
-        FontFamily="{DynamicResource MaterialDesignFont}">
+﻿<controls:MetroWindow x:Class="IziChat.MainWindow"
+                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                      xmlns:local="clr-namespace:IziChat"
+                      xmlns:chatLib="clr-namespace:ChatLib;assembly=ChatLib"
+                      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+                      xmlns:models="clr-namespace:ChatLib.Models;assembly=ChatLib"
+                      xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                      mc:Ignorable="d"
+                      Title="ClientChat" Height="550" Width="650"
+                      Loaded="ClientChat_OnLoaded"
+                      Name="Main"
+                      MinWidth="450"
+                      MinHeight="450"
+                      TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+                      TextElement.FontWeight="Regular"
+                      TextElement.FontSize="13"
+                      TextOptions.TextFormattingMode="Ideal"
+                      TextOptions.TextRenderingMode="Auto"
+                      Background="{DynamicResource MaterialDesignPaper}"
+                      FontFamily="{DynamicResource MaterialDesignFont}">
+
     <Window.Resources>
-        <ResourceDictionary Source="StyleDirectory/Styles.xaml" />
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="StyleDirectory/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <local:ConverterOneChar x:Key="ConverterOneChar" />
+            <local:MockMessages x:Key="MockMessages"/>
+        </ResourceDictionary>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -58,9 +66,7 @@
                                       Grid.IsSharedSizeScope="True">
                             <ItemsControl.ContextMenu>
                                 <ContextMenu>
-                                    <MenuItem Header="Create Room" Click="MenuItem_OnClick">
-                                        
-                                    </MenuItem>
+                                    <MenuItem Header="Create Room" Click="MenuItem_OnClick" />
                                 </ContextMenu>
                             </ItemsControl.ContextMenu>
                             <ItemsControl.ItemTemplate>
@@ -73,9 +79,9 @@
                                                 <ColumnDefinition />
                                             </Grid.ColumnDefinitions>
                                             <ToggleButton VerticalAlignment="Center" IsChecked="{Binding IsSelected}"
-                                                          Style="{StaticResource MaterialDesignActionLightToggleButton}"
-                                                           />
-                                            <TextBlock Grid.Column="1" Text="{Binding UserName}" VerticalAlignment="Center"
+                                                          Style="{StaticResource MaterialDesignActionLightToggleButton}" />
+                                            <TextBlock Grid.Column="1" Text="{Binding UserName}"
+                                                       VerticalAlignment="Center"
                                                        Padding="4" />
 
                                         </Grid>
@@ -96,19 +102,27 @@
 
         </Border>
         <ScrollViewer Name="Scroller" Grid.Row="0" Grid.Column="1" HorizontalScrollBarVisibility="Disabled">
-            <ItemsControl ItemsSource="{Binding ElementName=Main, Path=Messages}">
+            <ItemsControl ItemsSource="{Binding ElementName=Main, Path=Messages}" 
+                          d:DataContext="{Binding Source={StaticResource MockMessages}}">
+              
                 <ItemsControl.ItemTemplate>
+                    
                     <DataTemplate DataType="MessageViewModel">
+                        <!--
                         <Border Background="Lavender" CornerRadius="3" Margin="4">
-                            <StackPanel Orientation="Vertical" Margin="15,10">
-                                <TextBlock>
-                                    <Run Text="{Binding  Username}" FontWeight="Bold" />
-                                    <Run Text="(" /><Run Text="{Binding DateTime}" /><Run Text=")" />
-                                </TextBlock>
-                                <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
-                            </StackPanel>
+                            
 
                         </Border>
+                        -->
+                        <local:MessageControl  
+                            Letter="{Binding Username,Converter={StaticResource ConverterOneChar}}"
+                            Margin="6" 
+                            Message="{Binding Message}" 
+                            Datetime="{Binding DateTime,StringFormat=HH:mm}"
+                            UserName="{Binding Username}" 
+                            IconLocation="2">
+                            
+                        </local:MessageControl>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
@@ -135,4 +149,4 @@
             </StackPanel>
         </StatusBar>
     </Grid>
-</Window>
+</controls:MetroWindow>
