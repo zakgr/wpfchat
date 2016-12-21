@@ -39,6 +39,14 @@ namespace ChatLib
                 clientOperator.Disconnected += ClientOperator_Disconnected;
                 clientOperator.DataReceived += ClientOperator_DataReceived;
                 clientOperator.StartReading();
+                for (int i = 0; i < 1000000; i++)
+                {
+                    Broadcast(new BroadcastMessage()
+                    {
+                        Message = "sss",
+                        Username = "ffff"
+                    });
+                }
             }
         }
 
