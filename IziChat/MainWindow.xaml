@@ -20,7 +20,8 @@
                       TextOptions.TextFormattingMode="Ideal"
                       TextOptions.TextRenderingMode="Auto"
                       Background="{DynamicResource MaterialDesignPaper}"
-                      FontFamily="{DynamicResource MaterialDesignFont}">
+                      FontFamily="{DynamicResource MaterialDesignFont}"
+                      DataContext="{Binding RelativeSource={RelativeSource Self}}">
 
     <Window.Resources>
         <ResourceDictionary>
@@ -62,7 +63,7 @@
                             </ItemsControl.ItemTemplate>
                         </ListBox>
                     -->
-                        <ItemsControl ItemsSource="{Binding ElementName=Main, Path=OnlineUsers}"
+                        <ItemsControl ItemsSource="{Binding Path=OnlineUsers}"
                                       Grid.IsSharedSizeScope="True">
                             <ItemsControl.ContextMenu>
                                 <ContextMenu>
@@ -102,25 +103,20 @@
 
         </Border>
         <ScrollViewer Name="Scroller" Grid.Row="0" Grid.Column="1" HorizontalScrollBarVisibility="Disabled">
-            <ItemsControl ItemsSource="{Binding ElementName=Main, Path=Messages}" 
+            <ItemsControl ItemsSource="{Binding Path=Messages}" 
                           d:DataContext="{Binding Source={StaticResource MockMessages}}">
               
                 <ItemsControl.ItemTemplate>
                     
                     <DataTemplate DataType="MessageViewModel">
-                        <!--
-                        <Border Background="Lavender" CornerRadius="3" Margin="4">
-                            
-
-                        </Border>
-                        -->
+                        
                         <local:MessageControl  
                             Letter="{Binding Username,Converter={StaticResource ConverterOneChar}}"
                             Margin="6" 
                             Message="{Binding Message}" 
                             Datetime="{Binding DateTime,StringFormat=HH:mm}"
                             UserName="{Binding Username}" 
-                            IconLocation="2">
+                            IconLocation="1">
                             
                         </local:MessageControl>
                     </DataTemplate>
@@ -139,10 +135,10 @@
         <StatusBar Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0">
             <StackPanel Orientation="Horizontal">
                 <StatusBarItem>
-                    <TextBlock Text="{Binding ElementName=Main, Path=StatusClient.Status}" />
+                    <TextBlock Text="{Binding Path=StatusClient.Status}" />
                 </StatusBarItem>
                 <StatusBarItem>
-                    <ProgressBar Visibility="{Binding ElementName=Main,  Path=StatusClient.ProgressBarVisiblility}"
+                    <ProgressBar Visibility="{Binding Path=StatusClient.ProgressBarVisiblility}"
                                  IsIndeterminate="True"
                                  Width="200" Height="10" />
                 </StatusBarItem>
