@@ -177,6 +177,7 @@ namespace IziChat
 
         private void _client_BroadcastMessageReceived(object sender, BroadcastMessage e)
         {
+            //if(Messages.Count > 500) Messages.RemoveAt(0);
             Messages.Add(new MessageViewModel() { Username = e.Username, DateTime = e.DateTime, Message = e.Message});
         }
 

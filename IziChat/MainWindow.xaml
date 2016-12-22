@@ -4,9 +4,6 @@
                       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                       xmlns:local="clr-namespace:IziChat"
-                      xmlns:chatLib="clr-namespace:ChatLib;assembly=ChatLib"
-                      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-                      xmlns:models="clr-namespace:ChatLib.Models;assembly=ChatLib"
                       xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
                       xmlns:converters="clr-namespace:IziChat.Converters"
                       mc:Ignorable="d"
@@ -30,8 +27,8 @@
                 <ResourceDictionary Source="StyleDirectory/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <converters:ConverterOneChar x:Key="ConverterOneChar" />
-            <converters:ConverterUserCheck x:Key="ConverterUserCheck"/>
-            <local:MockMessages x:Key="MockMessages"/>
+            <converters:ConverterUserCheck x:Key="ConverterUserCheck" />
+            <local:MockMessages x:Key="MockMessages" />
         </ResourceDictionary>
     </Window.Resources>
     <Grid>
@@ -104,37 +101,56 @@
             </TabControl>
 
         </Border>
-        
-            <ItemsControl Grid.Column="1" ItemsSource="{Binding Path=Messages}" 
-                          d:DataContext="{Binding Source={StaticResource MockMessages}}">
-              <ItemsControl.ItemsPanel>
-                  <ItemsPanelTemplate>
-                      <VirtualizingStackPanel></VirtualizingStackPanel>
-                  </ItemsPanelTemplate>
-              </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    
-                    <DataTemplate DataType="MessageViewModel">
-                        
-                        <local:MessageControl  
-                            Letter="{Binding Username,Converter={StaticResource ConverterOneChar}}"
-                            Margin="6" 
-                            Message="{Binding Message}" 
-                            Datetime="{Binding DateTime,StringFormat=HH:mm}"
-                            UserName="{Binding Username}" 
-                            >
-                            <local:MessageControl.HorizontalAlignment>
-                                <MultiBinding Converter="{StaticResource ConverterUserCheck}">
-                                    <Binding Path="Username"></Binding>
-                                    <Binding ElementName="Main" Path="Settings.Username"></Binding>
-                                    <Binding ElementName="Main" Path="Ip"></Binding>
-                                </MultiBinding>
-                            </local:MessageControl.HorizontalAlignment>
-                        </local:MessageControl>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-   
+
+        <ItemsControl Grid.Column="1" ItemsSource="{Binding Path=Messages}"
+                      d:DataContext="{Binding Source={StaticResource MockMessages}}"
+                      VirtualizingStackPanel.IsVirtualizing="True"
+                      ScrollViewer.CanContentScroll="True"
+                      VirtualizingStackPanel.VirtualizationMode="Recycling">
+            <ItemsControl.Template>
+                <ControlTemplate>
+                    <Border
+                        BorderThickness="{TemplateBinding Border.BorderThickness}"
+                        Padding="{TemplateBinding Control.Padding}"
+                        BorderBrush="{TemplateBinding Border.BorderBrush}"
+                        Background="{TemplateBinding Panel.Background}"
+                        SnapsToDevicePixels="True">
+                        <ScrollViewer
+                            Padding="{TemplateBinding Control.Padding}"
+                            Focusable="False">
+                            <ItemsPresenter
+                                SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" />
+                        </ScrollViewer>
+                    </Border>
+                </ControlTemplate>
+            </ItemsControl.Template>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <VirtualizingStackPanel />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+
+                <DataTemplate DataType="MessageViewModel">
+
+                    <local:MessageControl
+                        Letter="{Binding Username,Converter={StaticResource ConverterOneChar}}"
+                        Margin="6"
+                        Message="{Binding Message}"
+                        Datetime="{Binding DateTime,StringFormat=HH:mm}"
+                        UserName="{Binding Username}">
+                        <local:MessageControl.HorizontalAlignment>
+                            <MultiBinding Converter="{StaticResource ConverterUserCheck}">
+                                <Binding Path="Username" />
+                                <Binding ElementName="Main" Path="Settings.Username" />
+                                <Binding ElementName="Main" Path="Ip" />
+                            </MultiBinding>
+                        </local:MessageControl.HorizontalAlignment>
+                    </local:MessageControl>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
         <TextBox
             Grid.Row="1"
             Grid.Column="1"
