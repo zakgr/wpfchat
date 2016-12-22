@@ -1,18 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace IziChat
 {
@@ -70,13 +61,13 @@ namespace IziChat
             set { SetValue(MessageProperty, value); }
         }
 
-        public static readonly DependencyProperty DatetimeProperty = DependencyProperty.Register(
-            "Datetime", typeof(DateTime), typeof(MessageControl), new PropertyMetadata(default(DateTime)));
+        public static readonly DependencyProperty DateTimeProperty = DependencyProperty.Register(
+            "DateTime", typeof(string), typeof(MessageControl), new PropertyMetadata(default(string)));
 
-        public DateTime Datetime
+        public string DateTime
         {
-            get { return (DateTime)GetValue(DatetimeProperty); }
-            set { SetValue(DatetimeProperty, value); }
+            get { return (string) GetValue(DateTimeProperty); }
+            set { SetValue(DateTimeProperty, value); }
         }
 
         public static readonly DependencyProperty UserNameProperty = DependencyProperty.Register(
@@ -115,18 +106,18 @@ namespace IziChat
             set { SetValue(IconForegroundProperty, value); }
         }
 
-        
-    }
-        public class AligmentToNumberConverter : IValueConverter
-        {
-            public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-            {
-                return (HorizontalAlignment)value == System.Windows.HorizontalAlignment.Left ? 0 : 2;
-            }
 
-            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-            {
-                throw new NotImplementedException();
-            }
+    }
+    public class AligmentToNumberConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return (HorizontalAlignment)value == System.Windows.HorizontalAlignment.Left ? 0 : 2;
         }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

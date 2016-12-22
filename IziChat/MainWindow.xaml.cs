@@ -1,20 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel.Design;
 using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using ChatLib;
 using System.IO;
 using ChatLib.Models;
@@ -46,6 +36,19 @@ namespace IziChat
         // Using a DependencyProperty as the backing store for StatusClienCollection.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty StatusClientProperty =
             DependencyProperty.Register("StatusClient", typeof(StatusConnection), typeof(MainWindow), new PropertyMetadata(null));
+
+
+
+        public ObservableCollection<RoomUsers> RoomList
+        {
+            get { return (ObservableCollection<RoomUsers>)GetValue(RoomListProperty); }
+            set { SetValue(RoomListProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for RoomLists.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty RoomListProperty =
+            DependencyProperty.Register("RoomList", typeof(ObservableCollection<RoomUsers>), typeof(MainWindow), new PropertyMetadata(0));
+
 
 
         public ObservableCollection<UserSelection> OnlineUsers
@@ -95,10 +98,9 @@ namespace IziChat
             Settings = !File.Exists("settings.json") ? new ChatSettings() { IpAddress = "127.0.0.1", Username = "default" } : JsonConvert.DeserializeObject<ChatSettings>(File.ReadAllText("settings.json"));
             File.WriteAllText("settings.json", JsonConvert.SerializeObject(Settings));
             _client = new ChatClient(IPAddress.Parse(Settings.IpAddress), 3000, Settings.Username);
-            //_client.
             Messages = new ObservableCollection<MessageViewModel>();
             OnlineUsers = new ObservableCollection<UserSelection>();
-            
+            RoomList = new ObservableCollection<RoomUsers>();
             StatusClient = new StatusConnection();
         }
 
@@ -136,15 +138,15 @@ namespace IziChat
             if (e.Key != Key.Return) return;
             var txt = (sender as TextBox);
 
-            if (txt == null || txt?.Text.Trim() == "") return;
-            if (txt.Text.Trim().StartsWith("/"))
+            if (txt == null || txt.Text.Trim() == "") return;
+            var trimText = txt.Text.Trim();
+            if (trimText.StartsWith("/"))
             {
-                CreateRoom(txt.Text.Trim());
-
+                if (trimText.Contains("/room"))CreateRoom(trimText);
             }
             else
             {
-                _client.SendBroadcastMessage(txt.Text.Trim());
+                _client.SendBroadcastMessage(trimText);
             }
             txt.Text = "";
         }
@@ -158,6 +160,23 @@ namespace IziChat
             _client.On<BroadcastMessage>(_client_BroadcastMessageReceived);
             _client.On<ClientStatusChanged>(_client_ClientStatusChanged);
             _client.On<StatusReport>(_client_StatusReport);
+            _client.On<CreateRoom>(_client_AddRoom);
+        }
+
+        private void CreateRoom(string text)
+        {
+            if (string.IsNullOrEmpty(text)) text = "default";
+            _client.CreateRoom(text, OnlineUsers.Where(user => user.IsSelected).Select(user => user.UserName).ToList());
+        }
+
+        private void _client_AddRoom(object sender, CreateRoom e)
+        {
+            RoomList.Add(new RoomUsers()
+            {
+                RoomId = e.RoomId,
+                RoomName = e.RoomName,
+                UserNames = e.Users
+            });
         }
 
         private void _client_StatusReport(object sender, StatusReport e)
@@ -192,7 +211,7 @@ namespace IziChat
         {
             StatusClient.Status = "Connected";
             StatusClient.ProgressBarVisiblility = Visibility.Collapsed;
-            Ip = "@" + (_client.TcpClient.Client.LocalEndPoint as IPEndPoint).ToString();
+            Ip = "@" + (_client.TcpClient.Client.LocalEndPoint as IPEndPoint);
         }
 
         private void _client_Connecting(object sender, EventArgs e)
@@ -201,20 +220,12 @@ namespace IziChat
             StatusClient.ProgressBarVisiblility = Visibility.Visible;
         }
 
-        private void CreateRoom(string text)
-        {
-           _client.CreateRoom(text,OnlineUsers.Where(user => user.IsSelected).Select(user=>user.UserName).ToList());
-        }
+        
 
         private void MenuItem_OnClick(object sender, RoutedEventArgs e)
         {
             var txt = (sender as TextBox) ?? new TextBox() {Text = ""};
             CreateRoom(txt.Text);
-        }
-
-        private void OnContentChanged(object sender, SizeChangedEventArgs e)
-        {
-
         }
     }
 }

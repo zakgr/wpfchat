@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ChatLib.Models
 {
@@ -35,13 +32,14 @@ namespace ChatLib.Models
     public class RoomMessage : BaseCommand
     {
         public string Message { get; set; }
-        public string Room { get; set; }
-
+        public Guid RoomId { get; set; }
+        public string Username { get; set; }
     }
 
     public class CreateRoom : BaseCommand
     {
         public List<string> Users { get; set; }
-
+        public Guid RoomId { get; set; }
+        public string RoomName { get; set; }
     }
 }

@@ -50,20 +50,6 @@
                 <TabItem Header="Online users">
                     <ScrollViewer Name="Users" VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Disabled">
-                        <!--
-                        <ListBox ItemsSource="{Binding ElementName=Main, Path=OnlineUsers}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Margin="4">
-                                        <StackPanel Orientation="Horizontal">
-                                            
-                                            <TextBlock Text="{Binding}" TextWrapping="Wrap" />
-                                        </StackPanel>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ListBox>
-                    -->
                         <ItemsControl ItemsSource="{Binding Path=OnlineUsers}"
                                       Grid.IsSharedSizeScope="True">
                             <ItemsControl.ContextMenu>
@@ -99,12 +85,26 @@
                         </ItemsControl>
                     </ScrollViewer>
                 </TabItem>
-                <TabItem Header="Rooms" />
+                <TabItem Header="Rooms">
+                    <ScrollViewer Name="RoomsList" VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
+                        <ItemsControl ItemsSource="{Binding RoomList}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="local:RoomUsers">
+                                    <TreeViewItem Header="{Binding RoomName}">
+                                        <TextBox Text="{Binding UserNames}"/>
+
+                                    </TreeViewItem>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </TabItem>
             </TabControl>
 
         </Border>
 
-        <ItemsControl Grid.Column="1" ItemsSource="{Binding Path=Messages}"
+        <ItemsControl Grid.Row="0" Grid.Column="1" ItemsSource="{Binding Path=Messages}"
                       d:DataContext="{Binding Source={StaticResource MockMessages}}"
                       VirtualizingStackPanel.IsVirtualizing="True"
                       ScrollViewer.CanContentScroll="True"
@@ -139,7 +139,7 @@
                         Letter="{Binding Username,Converter={StaticResource ConverterOneChar}}"
                         Margin="6"
                         Message="{Binding Message}"
-                        Datetime="{Binding DateTime,StringFormat=HH:mm}"
+                        DateTime="{Binding DateTime,StringFormat=HH:mm}"
                         UserName="{Binding Username}">
                         <local:MessageControl.HorizontalAlignment>
                             <MultiBinding Converter="{StaticResource ConverterUserCheck}">

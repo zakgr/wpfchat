@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading.Tasks;
 using ChatLib.Models;
 using Newtonsoft.Json;
 
@@ -14,6 +13,7 @@ namespace ChatLib
         //public event EventHandler<MessageInfo> MessageReceived;
         public event EventHandler<TcpClient> Connected;
         public Dictionary<string, ClientOperator> Users { get; private set; }
+        public Dictionary<Guid,List<string>> Rooms { get; private set; }
         private readonly int _portno;
 
         public ChatServer(int portno)
@@ -21,12 +21,15 @@ namespace ChatLib
             _portno = portno;
             On<ClientStatusChanged>(OnStatusChanged);
             On<BroadcastMessage>(OnBroadcastMessage);
+            On<CreateRoom>(OnCreateRoom);
+            On<RoomMessage>(OnRoomMessage);
         }
 
         public void Run()
         {
             var listener = new TcpListener(IPAddress.Any, _portno);
             Users = new Dictionary<string, ClientOperator>();
+            Rooms = new Dictionary<Guid, List<string>>();
             listener.Start();
 
 
@@ -39,6 +42,7 @@ namespace ChatLib
                 clientOperator.Disconnected += ClientOperator_Disconnected;
                 clientOperator.DataReceived += ClientOperator_DataReceived;
                 clientOperator.StartReading();
+                /*
                 Task.Run(async () =>
                 {
                     await Task.Delay(500);
@@ -51,8 +55,9 @@ namespace ChatLib
                         });
                     }
                 });
-                
+                */
             }
+            // ReSharper disable once FunctionNeverReturns
         }
 
         private void ClientOperator_Disconnected(object sender, TcpClient e)
@@ -60,7 +65,7 @@ namespace ChatLib
             var username = Users.FindByClient(e);
             lock (Users)
             {
-               Users.Remove(username);
+                Users.Remove(username);
             }
             Broadcast(new ClientStatusChanged()
             {
@@ -69,7 +74,15 @@ namespace ChatLib
             });
         }
 
-        
+        private void ClientOperator_DataReceived(object sender, string e)
+        {
+            var generalCommand = JsonConvert.DeserializeObject<CommandWrapper>(e);
+            var command = JsonConvert.DeserializeObject(generalCommand.Overhead.ToString(), generalCommand.Type);
+            Invoke(sender, command as BaseCommand);
+
+        }
+
+
         private void Broadcast(BaseCommand message)
         {
             lock (Users)
@@ -91,58 +104,28 @@ namespace ChatLib
             }
         }
 
-        private void ClientOperator_DataReceived(object sender, string e)
+        private void OnRoomMessage(object sender, RoomMessage e)
         {
-            var generalCommand = JsonConvert.DeserializeObject<CommandWrapper>(e);
-            var command = JsonConvert.DeserializeObject(generalCommand.Overhead.ToString(), generalCommand.Type);
-            Invoke(sender, command as BaseCommand);
-
+            var users = Rooms.FirstOrDefault(kv => kv.Key == e.RoomId).Value;
+            UniCast(e,users);
         }
-        /*
-        private void InspectMessage(ClientOperator tcpClient, BaseCommand)
+
+        private void OnCreateRoom(object sender, CreateRoom e)
         {
-            switch (type)
+            var user = Users.FindByClient((sender as ClientOperator)?.TcpClient);
+            if (!e.Users.Contains(user))e.Users.Add(user);
+            e.RoomId = new Guid();
+            Rooms.Add(e.RoomId,e.Users);
+            UniCast(e,e.Users);
+            UniCast(new BroadcastMessage()
             {
-                case CommandType.StatusChange:
-                    StatusType(tcpClient,JsonConvert.DeserializeObject<Command<StatusData>>(json));
-                    break;
-                case CommandType.CreateRoom:
-                    //RoomType(msgInfo);
-                    break;
-                case CommandType.BroadcastMessage:
-                    var msg = JsonConvert.DeserializeObject<Command<BroadcastMessage>>(json);
-                    msg.Data.Username = Users.FindByClient(tcpClient.TcpClient);
-                    Broadcast(msg);
-                    break;
-
-                case CommandType.RoomMessage:
-                    //RoomType(msgInfo);
-                    break;
-            }
+                Message = $"I add you to room {e.RoomName}",
+                Username = user
+            }, e.Users);
         }
-        
-
-        private void RoomType(Command<CreateRoom> msgInfo)
-        {
-            /*
-            var roomMessage = new MessageInfo()
-            {
-                Type = CommandType.Room,
-                Message = msgInfo.UserName + " invite you to his Room",
-                Date = DateTime.Now,
-                UserName = msgInfo.UserName,
-                UsersRecipient = msgInfo.UsersRecipient
-            };
-            MessageReceived?.Invoke(this, roomMessage);
-            UniCast(roomMessage);
-            
-        }
-
-       */
-
         private void OnBroadcastMessage(object sender, BroadcastMessage e)
         {
-            e.Username = Users.FindByClient((sender as ClientOperator).TcpClient);
+            e.Username = Users.FindByClient((sender as ClientOperator)?.TcpClient);
             Broadcast(e);
         }
 

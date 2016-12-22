@@ -40,8 +40,11 @@
                             <StackPanel Grid.Column="1" Orientation="Vertical" Margin="15,10">
 
                                 <TextBlock HorizontalAlignment="{TemplateBinding HorizontalAlignment}">
+                              
                                     <Run Text="{TemplateBinding  UserName}" FontWeight="Bold" />
-                                    <Run Text="{TemplateBinding Datetime}" FontSize="9" />
+                       
+                                    <Run Text="{TemplateBinding DateTime}" FontSize="9" />
+                               
                                 </TextBlock>
                                 <TextBlock HorizontalAlignment="{TemplateBinding HorizontalAlignment}" 
                                            Text="{TemplateBinding Message}" TextWrapping="Wrap" />
