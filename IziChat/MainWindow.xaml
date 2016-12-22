@@ -104,10 +104,14 @@
             </TabControl>
 
         </Border>
-        <ScrollViewer Name="Scroller" Grid.Row="0" Grid.Column="1" HorizontalScrollBarVisibility="Disabled">
-            <ItemsControl ItemsSource="{Binding Path=Messages}" 
+        
+            <ItemsControl Grid.Column="1" ItemsSource="{Binding Path=Messages}" 
                           d:DataContext="{Binding Source={StaticResource MockMessages}}">
-              
+              <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                      <VirtualizingStackPanel></VirtualizingStackPanel>
+                  </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     
                     <DataTemplate DataType="MessageViewModel">
@@ -130,7 +134,7 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-        </ScrollViewer>
+   
         <TextBox
             Grid.Row="1"
             Grid.Column="1"

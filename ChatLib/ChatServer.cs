@@ -39,22 +39,29 @@ namespace ChatLib
                 clientOperator.Disconnected += ClientOperator_Disconnected;
                 clientOperator.DataReceived += ClientOperator_DataReceived;
                 clientOperator.StartReading();
-                for (int i = 0; i < 1000000; i++)
+                Task.Run(async () =>
                 {
-                    Broadcast(new BroadcastMessage()
+                    await Task.Delay(500);
+                    for (int i = 0; i < 100000; i++)
                     {
-                        Message = "sss",
-                        Username = "ffff"
-                    });
-                }
+                        Broadcast(new BroadcastMessage()
+                        {
+                            Message = "sss" + i.ToString(),
+                            Username = "ffff"
+                        });
+                    }
+                });
+                
             }
         }
 
         private void ClientOperator_Disconnected(object sender, TcpClient e)
         {
             var username = Users.FindByClient(e);
-            Users.Remove(username);
-
+            lock (Users)
+            {
+               Users.Remove(username);
+            }
             Broadcast(new ClientStatusChanged()
             {
                 Status = "offline",
@@ -65,10 +72,15 @@ namespace ChatLib
         
         private void Broadcast(BaseCommand message)
         {
-            foreach (var client in Users.Select(kv=>kv.Value))
+            lock (Users)
             {
-                client.Write(JsonConvert.SerializeObject(new CommandWrapper() { Type = message.GetType(), Overhead = message }));
+                foreach (var client in Users.Select(kv => kv.Value))
+                {
+                    client.Write(
+                        JsonConvert.SerializeObject(new CommandWrapper() {Type = message.GetType(), Overhead = message}));
+                }
             }
+
         }
 
         private void UniCast(BaseCommand message, ICollection<string> users)

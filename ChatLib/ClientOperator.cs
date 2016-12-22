@@ -48,6 +48,7 @@ namespace ChatLib
             try
             {
                 _writer.WriteLine(message);
+                Console.WriteLine(message);
             }
             catch
             {
