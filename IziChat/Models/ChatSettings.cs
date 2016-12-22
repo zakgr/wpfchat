@@ -1,4 +1,4 @@
-﻿namespace IziChat
+﻿namespace IziChat.Models
 {
     public class ChatSettings
     {

@@ -114,7 +114,7 @@ namespace ChatLib
         {
             var user = Users.FindByClient((sender as ClientOperator)?.TcpClient);
             if (!e.Users.Contains(user))e.Users.Add(user);
-            e.RoomId = new Guid();
+            e.RoomId = Guid.NewGuid();
             Rooms.Add(e.RoomId,e.Users);
             UniCast(e,e.Users);
             UniCast(new BroadcastMessage()

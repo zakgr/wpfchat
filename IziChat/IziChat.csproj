@@ -82,9 +82,11 @@
     <Compile Include="Converters\ConverterOneChar.cs" />
     <Compile Include="Converters\ConverterUserCheck.cs" />
     <Compile Include="MessageControl.cs" />
-    <Compile Include="MockMessages.cs" />
-    <Compile Include="RoomUsers.cs" />
-    <Compile Include="UserSelection.cs" />
+    <Compile Include="Models\MessageViewModel.cs" />
+    <Compile Include="MockData\MockMessages.cs" />
+    <Compile Include="MockData\MockRooms.cs" />
+    <Compile Include="Models\RoomViewModel.cs" />
+    <Compile Include="Models\UserViewModel.cs" />
     <Compile Include="StatusConnection.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -94,7 +96,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ChatSettings.cs" />
+    <Compile Include="Models\ChatSettings.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -142,6 +144,7 @@
       <Name>ChatLib</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

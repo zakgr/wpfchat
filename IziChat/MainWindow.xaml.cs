@@ -8,6 +8,7 @@ using System.Windows.Input;
 using ChatLib;
 using System.IO;
 using ChatLib.Models;
+using IziChat.Models;
 using MahApps.Metro.Controls;
 using Newtonsoft.Json;
 
@@ -18,14 +19,7 @@ namespace IziChat
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
-        public class MessageViewModel
-        {
-            public DateTime DateTime { get; set; }
 
-            public string Username { get; set; }
-
-            public string Message { get; set; }
-        }
 
         public StatusConnection StatusClient
         {
@@ -39,27 +33,27 @@ namespace IziChat
 
 
 
-        public ObservableCollection<RoomUsers> RoomList
+        public ObservableCollection<RoomViewModel> Rooms
         {
-            get { return (ObservableCollection<RoomUsers>)GetValue(RoomListProperty); }
-            set { SetValue(RoomListProperty, value); }
+            get { return (ObservableCollection<RoomViewModel>)GetValue(RoomsProperty); }
+            set { SetValue(RoomsProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for RoomLists.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty RoomListProperty =
-            DependencyProperty.Register("RoomList", typeof(ObservableCollection<RoomUsers>), typeof(MainWindow), new PropertyMetadata(null));
+        public static readonly DependencyProperty RoomsProperty =
+            DependencyProperty.Register("Rooms", typeof(ObservableCollection<RoomViewModel>), typeof(MainWindow), new PropertyMetadata(null));
 
 
 
-        public ObservableCollection<UserSelection> OnlineUsers
+        public ObservableCollection<UserViewModel> OnlineUsers
         {
-            get { return (ObservableCollection<UserSelection>)GetValue(OnlineUsersProperty); }
+            get { return (ObservableCollection<UserViewModel>)GetValue(OnlineUsersProperty); }
             set { SetValue(OnlineUsersProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for OnlineUsersCollection.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty OnlineUsersProperty =
-            DependencyProperty.Register("OnlineUsers", typeof(ObservableCollection<UserSelection>), typeof(MainWindow), new PropertyMetadata(null));
+            DependencyProperty.Register("OnlineUsers", typeof(ObservableCollection<UserViewModel>), typeof(MainWindow), new PropertyMetadata(null));
 
 
         public ObservableCollection<MessageViewModel> Messages
@@ -80,7 +74,7 @@ namespace IziChat
 
         public string Ip
         {
-            get { return (string) GetValue(IpProperty); }
+            get { return (string)GetValue(IpProperty); }
             set { SetValue(IpProperty, value); }
         }
         public static readonly DependencyProperty SettingsProperty = DependencyProperty.Register(
@@ -88,19 +82,19 @@ namespace IziChat
 
         public ChatSettings Settings
         {
-            get { return (ChatSettings) GetValue(SettingsProperty); }
+            get { return (ChatSettings)GetValue(SettingsProperty); }
             set { SetValue(SettingsProperty, value); }
         }
         public MainWindow()
         {
-            
+
             InitializeComponent();
             Settings = !File.Exists("settings.json") ? new ChatSettings() { IpAddress = "127.0.0.1", Username = "default" } : JsonConvert.DeserializeObject<ChatSettings>(File.ReadAllText("settings.json"));
             File.WriteAllText("settings.json", JsonConvert.SerializeObject(Settings));
             _client = new ChatClient(IPAddress.Parse(Settings.IpAddress), 3000, Settings.Username);
             Messages = new ObservableCollection<MessageViewModel>();
-            OnlineUsers = new ObservableCollection<UserSelection>();
-            RoomList = new ObservableCollection<RoomUsers>();
+            OnlineUsers = new ObservableCollection<UserViewModel>();
+            Rooms = new ObservableCollection<RoomViewModel>();
             StatusClient = new StatusConnection();
         }
 
@@ -128,10 +122,10 @@ namespace IziChat
         //            var users = e.UsersRecipient;
         //        }
         //            break;
-               
+
         //    }
-         //   Scroller.ScrollToBottom();
-       // }
+        //   Scroller.ScrollToBottom();
+        // }
 
         private void UIElement_OnKeyDown(object sender, KeyEventArgs e)
         {
@@ -142,7 +136,7 @@ namespace IziChat
             var trimText = txt.Text.Trim();
             if (trimText.StartsWith("/"))
             {
-                if (trimText.Contains("/room"))CreateRoom(trimText);
+                if (trimText.Contains("/room")) CreateRoom(trimText);
             }
             else
             {
@@ -171,7 +165,7 @@ namespace IziChat
 
         private void _client_AddRoom(object sender, CreateRoom e)
         {
-            RoomList.Add(new RoomUsers()
+            Rooms.Add(new RoomViewModel()
             {
                 RoomId = e.RoomId,
                 RoomName = e.RoomName,
@@ -182,7 +176,7 @@ namespace IziChat
         private void _client_StatusReport(object sender, StatusReport e)
         {
             OnlineUsers =
-                new ObservableCollection<UserSelection>(e.Usernames.Select(u => new UserSelection() {UserName = u}));
+                new ObservableCollection<UserViewModel>(e.Usernames.Select(u => new UserViewModel() { UserName = u }));
         }
 
         private void _client_ClientStatusChanged(object sender, ClientStatusChanged e)
@@ -190,14 +184,18 @@ namespace IziChat
             if (e.Status == "offline")
             {
                 OnlineUsers.Remove(OnlineUsers.Single(user => user.UserName == e.Username));
+                foreach (var roomUsers in Rooms.Where(room => room.UserNames.Contains(e.Username)))
+                {
+                    roomUsers.UserNames.Remove(e.Username);
+                }
             }
-            OnlineUsers.Add(new UserSelection() {UserName = e.Username});
+            else OnlineUsers.Add(new UserViewModel() { UserName = e.Username });
         }
 
         private void _client_BroadcastMessageReceived(object sender, BroadcastMessage e)
         {
             //if(Messages.Count > 500) Messages.RemoveAt(0);
-            Messages.Add(new MessageViewModel() { Username = e.Username, DateTime = e.DateTime, Message = e.Message});
+            Messages.Add(new MessageViewModel() { Username = e.Username, DateTime = e.DateTime, Message = e.Message });
         }
 
         private void _client_Disconnected(object sender, EventArgs e)
@@ -220,11 +218,11 @@ namespace IziChat
             StatusClient.ProgressBarVisiblility = Visibility.Visible;
         }
 
-        
+
 
         private void MenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            var txt = (sender as TextBox) ?? new TextBox() {Text = ""};
+            var txt = (sender as TextBox) ?? new TextBox() { Text = "" };
             CreateRoom(txt.Text);
         }
     }
