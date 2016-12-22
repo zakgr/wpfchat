@@ -169,7 +169,7 @@ namespace IziChat
             {
                 RoomId = e.RoomId,
                 RoomName = e.RoomName,
-                UserNames = e.Users
+                UserNames = new ObservableCollection<string>(e.Users)
             });
         }
 
@@ -224,6 +224,11 @@ namespace IziChat
         {
             var txt = (sender as TextBox) ?? new TextBox() { Text = "" };
             CreateRoom(txt.Text);
+        }
+
+        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        {
+            new Window().Show();
         }
     }
 }
