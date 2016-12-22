@@ -47,7 +47,7 @@ namespace IziChat
 
         // Using a DependencyProperty as the backing store for RoomLists.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty RoomListProperty =
-            DependencyProperty.Register("RoomList", typeof(ObservableCollection<RoomUsers>), typeof(MainWindow), new PropertyMetadata(0));
+            DependencyProperty.Register("RoomList", typeof(ObservableCollection<RoomUsers>), typeof(MainWindow), new PropertyMetadata(null));
 
 
 
