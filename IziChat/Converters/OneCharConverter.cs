@@ -4,7 +4,7 @@ using System.Windows.Data;
 
 namespace IziChat.Converters
 {
-    public class ConverterOneChar: IValueConverter
+    public class OneCharConverter: IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

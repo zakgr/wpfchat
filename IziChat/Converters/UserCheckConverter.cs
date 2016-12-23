@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 
 namespace IziChat.Converters
 {
-    public class ConverterUserCheck : IMultiValueConverter
+    public class UserCheckConverter : IMultiValueConverter
     {
+        // ReSharper disable RedundantToStringCall
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
             if (values.Length!=3) throw new Exception("2 Usernames Expected");

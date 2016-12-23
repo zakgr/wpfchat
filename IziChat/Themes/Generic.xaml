@@ -2,8 +2,8 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:IziChat"
-    xmlns:converters="clr-namespace:I">
-    <local:AligmentToNumberConverter x:Key="AligmentToNumberConverter"/>
+    xmlns:converters="clr-namespace:IziChat.Converters">
+    <converters:AligmentToNumberConverter x:Key="AligmentToNumberConverter"/>
 
     <Style TargetType="{x:Type local:MessageControl}">
         <Setter Property="HorizontalAlignment" Value="Stretch" />

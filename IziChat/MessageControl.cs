@@ -1,8 +1,5 @@
-﻿using System;
-using System.Globalization;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Media;
 
 namespace IziChat
@@ -108,16 +105,6 @@ namespace IziChat
 
 
     }
-    public class AligmentToNumberConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return (HorizontalAlignment)value == System.Windows.HorizontalAlignment.Left ? 0 : 2;
-        }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
+
 }

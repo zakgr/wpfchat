@@ -30,8 +30,8 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="StyleDirectory/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <converters:ConverterOneChar x:Key="ConverterOneChar" />
-            <converters:ConverterUserCheck x:Key="ConverterUserCheck" />
+            <converters:OneCharConverter x:Key="ConverterOneChar" />
+            <converters:UserCheckConverter x:Key="ConverterUserCheck" />
             <mockData:MockMessages x:Key="MockMessages" />
             <mockData:MockRooms x:Key="MockRooms"/>
         </ResourceDictionary>

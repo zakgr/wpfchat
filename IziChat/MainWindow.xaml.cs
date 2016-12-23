@@ -55,7 +55,7 @@ namespace IziChat
         public static readonly DependencyProperty OnlineUsersProperty =
             DependencyProperty.Register("OnlineUsers", typeof(ObservableCollection<UserViewModel>), typeof(MainWindow), new PropertyMetadata(null));
 
-
+     
         public ObservableCollection<MessageViewModel> Messages
         {
             get { return (ObservableCollection<MessageViewModel>)GetValue(MessagesProperty); }
@@ -65,7 +65,7 @@ namespace IziChat
         // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty MessagesProperty =
             DependencyProperty.Register("Messages", typeof(ObservableCollection<MessageViewModel>), typeof(MainWindow), new PropertyMetadata(null));
-
+       
 
         private readonly ChatClient _client;
 
