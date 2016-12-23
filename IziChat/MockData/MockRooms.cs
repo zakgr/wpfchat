@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using IziChat.Models;
 
 namespace IziChat.MockData
@@ -12,7 +13,7 @@ namespace IziChat.MockData
             {
                 RoomId = Guid.NewGuid(),
                 RoomName = "Default",
-                UserNames = new List<string>()
+                UserNames = new ObservableCollection<string>()
                 {
                     "test",
                     "test2"

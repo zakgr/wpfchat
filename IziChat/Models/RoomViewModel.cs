@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace IziChat.Models
 {
@@ -7,11 +8,11 @@ namespace IziChat.Models
     {
         public RoomViewModel()
         {
-            UserNames = new List<string>();
+            UserNames = new ObservableCollection<string>();
         }
 
         public string RoomName { get; set; }
         public Guid RoomId { get; set; }
-        public List<string> UserNames { get; set; }
+        public ObservableCollection<string> UserNames { get; set; }
     }
 }
