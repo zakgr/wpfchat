@@ -21,7 +21,7 @@
             <ColumnDefinition Width="1*" />
         </Grid.ColumnDefinitions>
 
-        <Label Grid.Row="0" Grid.Column="0" 
+        <Label Grid.Row="0" Grid.Column="0"
                Content="Room Name" HorizontalAlignment="Left" Margin="10"
                VerticalAlignment="Top" />
 
@@ -32,20 +32,22 @@
                  MaxLength="20" MinWidth="120"
                  Margin="10" />
 
-        <Label Grid.Row="1" Grid.Column="0" 
+        <Label Grid.Row="1" Grid.Column="0"
                Content="Select Users" HorizontalAlignment="Left" Margin="10"
                VerticalAlignment="Top" />
         <ScrollViewer Name="Users" Grid.Row="1" Grid.Column="1" VerticalScrollBarVisibility="Auto"
-                                      HorizontalScrollBarVisibility="Disabled"
-               >
-            <ItemsControl ItemsSource="{Binding Path=MainWindow.OnlineUsers}">
+                      HorizontalScrollBarVisibility="Disabled"
+                      Margin="0 10"
+                      HorizontalAlignment="Left" VerticalAlignment="Top">
+            <ItemsControl ItemsSource="{Binding Path=(local:ClientData.Users)}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="models:UserViewModel">
-                        <CheckBox Content="{Binding UserName}" IsChecked="{Binding IsSelected}"></CheckBox>
+                        <CheckBox
+                            Content="{Binding UserName}" IsChecked="{Binding IsSelected}" />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-    
+
         </ScrollViewer>
         <Button Grid.Row="2" Grid.Column="1"
                 Content="Create Room" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="9" />
