@@ -88,10 +88,10 @@
     <Compile Include="MockData\MockRooms.cs" />
     <Compile Include="Models\RoomViewModel.cs" />
     <Compile Include="Models\UserViewModel.cs" />
-    <Compile Include="StatusConnection.cs" />
-    <Compile Include="WpfMessageControl.xaml.cs">
-      <DependentUpon>WpfMessageControl.xaml</DependentUpon>
+    <Compile Include="RoomWindow.xaml.cs">
+      <DependentUpon>RoomWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="StatusConnection.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -105,6 +105,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="RoomWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="StyleDirectory\Styles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -112,10 +116,6 @@
     <Page Include="Themes\Generic.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="WpfMessageControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>

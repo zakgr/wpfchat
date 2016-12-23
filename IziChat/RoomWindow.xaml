@@ -1,0 +1,28 @@
+﻿<controls:MetroWindow x:Class="IziChat.RoomWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:IziChat"
+        xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+        mc:Ignorable="d"
+        Title="CreateRoom" Height="300" Width="300" 
+        WindowStartupLocation="CenterOwner" Deactivated="Window_Deactivated">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Label Grid.Row="0" Grid.Column="0"  Content="Room Name" HorizontalAlignment="Left" Margin="10" VerticalAlignment="Top"/>
+        <Label Grid.Row="1" Grid.Column="0"  Content="Select Users" HorizontalAlignment="Left" Margin="10" VerticalAlignment="Top"/>
+
+        <TextBox Grid.Row="0" Grid.Column="1" x:Name="RoomName" HorizontalAlignment="Left" Height="23" Margin="10" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120"/>
+        <Button Grid.Row="2" Grid.Column="1" Content="Create Room" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="9"/>
+    </Grid>
+</controls:MetroWindow>
+

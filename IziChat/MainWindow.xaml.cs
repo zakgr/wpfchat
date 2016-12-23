@@ -17,10 +17,11 @@ namespace IziChat
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+    // ReSharper disable once RedundantExtendsListEntry
     public partial class MainWindow : MetroWindow
     {
 
-
+        private RoomWindow _room;
         public StatusConnection StatusClient
         {
             get { return (StatusConnection)GetValue(StatusClientProperty); }
@@ -228,7 +229,9 @@ namespace IziChat
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
-            new Window().Show();
+            _room = new RoomWindow {Owner = this};
+            _room.Show();
+            
         }
     }
 }

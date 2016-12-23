@@ -119,7 +119,7 @@
                     </ScrollViewer>
                 </TabItem>
             </TabControl>
-                <Button Style="{StaticResource MaterialDesignFloatingActionButton}" VerticalAlignment="Bottom" Click="ButtonBase_OnClick">
+                <Button Style="{StaticResource MaterialDesignFloatingActionButton}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Click="ButtonBase_OnClick">
                     <materialDesign:PackIcon Kind="Plus"/>
                 </Button>
             </Grid>

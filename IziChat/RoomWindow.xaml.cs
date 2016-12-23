@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,21 +10,24 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
-using IziChat.Models;
+using MahApps.Metro.Controls;
 
-namespace IziChat.WpfControls
+namespace IziChat
 {
     /// <summary>
-    /// Interaction logic for WpfMessageControl.xaml
+    /// Interaction logic for RoomWindow.xaml
     /// </summary>
-    public partial class WpfMessageControl : UserControl
+    public partial class RoomWindow
     {
-        public WpfMessageControl()
+        public RoomWindow()
         {
             InitializeComponent();
         }
 
+        private void Window_Deactivated(object sender, EventArgs e)
+        {
+            try { this.Close(); } catch { }
+        }
     }
 }
