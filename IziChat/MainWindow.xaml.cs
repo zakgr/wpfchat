@@ -44,18 +44,6 @@ namespace IziChat
         public static readonly DependencyProperty RoomsProperty =
             DependencyProperty.Register("Rooms", typeof(ObservableCollection<RoomViewModel>), typeof(MainWindow), new PropertyMetadata(null));
 
-
-
-        public ObservableCollection<UserViewModel> OnlineUsers
-        {
-            get { return (ObservableCollection<UserViewModel>)GetValue(OnlineUsersProperty); }
-            set { SetValue(OnlineUsersProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for OnlineUsersCollection.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty OnlineUsersProperty =
-            DependencyProperty.Register("OnlineUsers", typeof(ObservableCollection<UserViewModel>), typeof(MainWindow), new PropertyMetadata(null));
-
      
         public ObservableCollection<MessageViewModel> Messages
         {
@@ -94,7 +82,6 @@ namespace IziChat
             File.WriteAllText("settings.json", JsonConvert.SerializeObject(Settings));
             _client = new ChatClient(IPAddress.Parse(Settings.IpAddress), 3000, Settings.Username);
             Messages = new ObservableCollection<MessageViewModel>();
-            OnlineUsers = new ObservableCollection<UserViewModel>();
             Rooms = new ObservableCollection<RoomViewModel>();
             StatusClient = new StatusConnection();
         }
@@ -161,7 +148,7 @@ namespace IziChat
         private void CreateRoom(string text)
         {
             if (string.IsNullOrEmpty(text)) text = "default";
-            _client.CreateRoom(text, OnlineUsers.Where(user => user.IsSelected).Select(user => user.UserName).ToList());
+            _client.CreateRoom(text, ClientData.Users.Where(user => user.IsSelected).Select(user => user.UserName).ToList());
         }
 
         private void _client_AddRoom(object sender, CreateRoom e)
@@ -176,7 +163,7 @@ namespace IziChat
 
         private void _client_StatusReport(object sender, StatusReport e)
         {
-            OnlineUsers =
+            ClientData.Users =
                 new ObservableCollection<UserViewModel>(e.Usernames.Select(u => new UserViewModel() { UserName = u }));
         }
 
@@ -184,13 +171,13 @@ namespace IziChat
         {
             if (e.Status == "offline")
             {
-                OnlineUsers.Remove(OnlineUsers.Single(user => user.UserName == e.Username));
+                ClientData.Users.Remove(ClientData.Users.Single(user => user.UserName == e.Username));
                 foreach (var roomUsers in Rooms.Where(room => room.UserNames.Contains(e.Username)))
                 {
                     roomUsers.UserNames.Remove(e.Username);
                 }
             }
-            else OnlineUsers.Add(new UserViewModel() { UserName = e.Username });
+            else ClientData.Users.Add(new UserViewModel() { UserName = e.Username });
         }
 
         private void _client_BroadcastMessageReceived(object sender, BroadcastMessage e)
@@ -203,7 +190,7 @@ namespace IziChat
         {
             StatusClient.Status = "Disconnected";
             StatusClient.ProgressBarVisiblility = Visibility.Collapsed;
-            OnlineUsers.Clear();
+            ClientData.Users.Clear();
         }
 
         private void _client_Connected(object sender, EventArgs e)
@@ -229,7 +216,8 @@ namespace IziChat
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
-            _room = new RoomWindow {Owner = this};
+            _room = new RoomWindow(Main) {Owner = this};
+            
             _room.Show();
             
         }

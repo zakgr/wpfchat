@@ -34,7 +34,7 @@
             <converters:OneCharConverter x:Key="ConverterOneChar" />
             <converters:UserCheckConverter x:Key="ConverterUserCheck" />
             <mockData:MockMessages x:Key="MockMessages" />
-            <mockData:MockRooms x:Key="MockRooms"/>
+            <mockData:MockRooms x:Key="MockRooms" />
         </ResourceDictionary>
     </Window.Resources>
     <Grid>
@@ -51,76 +51,76 @@
         <Border Grid.Row="0" Grid.RowSpan="2" BorderThickness="0,0,1,0" BorderBrush="#44000000" Background="#11000000">
             <Grid>
                 <TabControl>
-                <TabItem Header="Online users">
-                    <ScrollViewer Name="Users" VerticalScrollBarVisibility="Auto"
-                                  HorizontalScrollBarVisibility="Disabled">
-                        <ItemsControl ItemsSource="{Binding Path=OnlineUsers}"
-                                      Grid.IsSharedSizeScope="True">
-                            <ItemsControl.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Header="Create Room" Click="MenuItem_OnClick" />
-                                </ContextMenu>
-                            </ItemsControl.ContextMenu>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate DataType="models:UserViewModel">
-                                    <Border x:Name="Border" Padding="5" BorderThickness="0 0 0 1"
-                                            BorderBrush="{DynamicResource MaterialDesignDivider}">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition SharedSizeGroup="Checkerz" />
-                                                <ColumnDefinition />
-                                            </Grid.ColumnDefinitions>
-                                            <!-- ReSharper disable once Xaml.StaticResourceNotResolved -->
-                                            <ToggleButton VerticalAlignment="Center" IsChecked="{Binding IsSelected}"
-                                                          Style="{StaticResource MaterialDesignActionLightToggleButton}" />
-                                            <TextBlock Grid.Column="1" Text="{Binding UserName}"
-                                                       VerticalAlignment="Center"
-                                                       Padding="4" />
+                    <TabItem Header="Online users">
+                        <ScrollViewer Name="Users" VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled">
+                            <ItemsControl ItemsSource="{Binding Path={x:Static local:ClientData.Users}}"
+                                          Grid.IsSharedSizeScope="True">
+                                <ItemsControl.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Create Room" Click="MenuItem_OnClick" />
+                                    </ContextMenu>
+                                </ItemsControl.ContextMenu>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="models:UserViewModel">
+                                        <Border x:Name="Border" Padding="5" BorderThickness="0 0 0 1"
+                                                BorderBrush="{DynamicResource MaterialDesignDivider}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition SharedSizeGroup="Checkerz" />
+                                                    <ColumnDefinition />
+                                                </Grid.ColumnDefinitions>
+                                                <!-- ReSharper disable once Xaml.StaticResourceNotResolved -->
+                                                <ToggleButton VerticalAlignment="Center"
+                                                              IsChecked="{Binding IsSelected}"
+                                                              Style="{StaticResource MaterialDesignActionLightToggleButton}" />
+                                                <TextBlock Grid.Column="1" Text="{Binding UserName}"
+                                                           VerticalAlignment="Center"
+                                                           Padding="4" />
 
-                                        </Grid>
-                                    </Border>
-                                    <DataTemplate.Triggers>
-                                        <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                            <Setter TargetName="Border" Property="Background"
-                                                    Value="{DynamicResource MaterialDesignSelection}" />
-                                        </DataTrigger>
-                                    </DataTemplate.Triggers>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
-                </TabItem>
-                <TabItem Header="Rooms" >
-                    <ScrollViewer Name="RoomsList" VerticalScrollBarVisibility="Auto"
-                                  HorizontalScrollBarVisibility="Disabled"
-                                  >
-                        <ItemsControl 
-                            d:DataContext="{Binding Source={StaticResource MockRooms}}"
-                            
-                            ItemsSource="{Binding Path=Rooms}"
-                                      >
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate DataType="models:RoomViewModel">
-                                    <TreeViewItem Header="{Binding RoomName}">
-                                        <ListBox ItemsSource="{Binding UserNames}">
-                                            <ListBox.ItemTemplate>
-                                                <DataTemplate>
-                                                    <StackPanel Orientation="Vertical">
-                                                        <TextBlock Text="{Binding}" />
-                                                    </StackPanel>
-                                                </DataTemplate>
-                                            </ListBox.ItemTemplate>
-                                        </ListBox>
+                                            </Grid>
+                                        </Border>
+                                        <DataTemplate.Triggers>
+                                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                <Setter TargetName="Border" Property="Background"
+                                                        Value="{DynamicResource MaterialDesignSelection}" />
+                                            </DataTrigger>
+                                        </DataTemplate.Triggers>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </TabItem>
+                    <TabItem Header="Rooms">
+                        <ScrollViewer Name="RoomsList" VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled">
+                            <ItemsControl
+                                d:DataContext="{Binding Source={StaticResource MockRooms}}"
 
-                                    </TreeViewItem>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
-                </TabItem>
-            </TabControl>
-                <Button Style="{StaticResource MaterialDesignFloatingActionButton}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Click="ButtonBase_OnClick">
-                    <materialDesign:PackIcon Kind="Plus"/>
+                                ItemsSource="{Binding Path=Rooms}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="models:RoomViewModel">
+                                        <TreeViewItem Header="{Binding RoomName}">
+                                            <ListBox ItemsSource="{Binding UserNames}">
+                                                <ListBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <StackPanel Orientation="Vertical">
+                                                            <TextBlock Text="{Binding}" />
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </ListBox.ItemTemplate>
+                                            </ListBox>
+
+                                        </TreeViewItem>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </TabItem>
+                </TabControl>
+                <Button Style="{StaticResource MaterialDesignFloatingActionButton}" HorizontalAlignment="Left"
+                        VerticalAlignment="Bottom" Click="ButtonBase_OnClick">
+                    <materialDesign:PackIcon Kind="Plus" />
                 </Button>
             </Grid>
         </Border>

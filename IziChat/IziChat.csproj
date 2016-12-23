@@ -79,6 +79,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ClientData.cs" />
     <Compile Include="Converters\OneCharConverter.cs" />
     <Compile Include="Converters\UserCheckConverter.cs" />
     <Compile Include="Converters\AligmentToNumberConverter.cs" />
