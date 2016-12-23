@@ -28,9 +28,9 @@ namespace IziChat
 
         private static void OnPropertyChanged([CallerMemberName] string name=null)
         {
-            PropertyChanged?.Invoke(null,new PropertyChangedEventArgs(name));
+            StaticPropertyChanged?.Invoke(null,new PropertyChangedEventArgs(name));
         }
 
-        private static event PropertyChangedEventHandler PropertyChanged;
+        public static event PropertyChangedEventHandler StaticPropertyChanged;
     }
 }

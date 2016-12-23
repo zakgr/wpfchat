@@ -54,7 +54,7 @@
                     <TabItem Header="Online users">
                         <ScrollViewer Name="Users" VerticalScrollBarVisibility="Auto"
                                       HorizontalScrollBarVisibility="Disabled">
-                            <ItemsControl ItemsSource="{Binding Path={x:Static local:ClientData.Users}}"
+                            <ItemsControl ItemsSource="{Binding Path=(local:ClientData.Users)}"
                                           Grid.IsSharedSizeScope="True">
                                 <ItemsControl.ContextMenu>
                                     <ContextMenu>
