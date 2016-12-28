@@ -11,6 +11,7 @@ using ChatLib.Models;
 using IziChat.Models;
 using MahApps.Metro.Controls;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace IziChat
 {
@@ -44,7 +45,7 @@ namespace IziChat
         public static readonly DependencyProperty RoomsProperty =
             DependencyProperty.Register("Rooms", typeof(ObservableCollection<RoomViewModel>), typeof(MainWindow), new PropertyMetadata(null));
 
-     
+
         public ObservableCollection<MessageViewModel> Messages
         {
             get { return (ObservableCollection<MessageViewModel>)GetValue(MessagesProperty); }
@@ -54,7 +55,7 @@ namespace IziChat
         // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty MessagesProperty =
             DependencyProperty.Register("Messages", typeof(ObservableCollection<MessageViewModel>), typeof(MainWindow), new PropertyMetadata(null));
-       
+
 
         private readonly ChatClient _client;
 
@@ -124,7 +125,7 @@ namespace IziChat
             var trimText = txt.Text.Trim();
             if (trimText.StartsWith("/"))
             {
-                if (trimText.Contains("/room")) CreateRoom(trimText);
+                //if (trimText.Contains("/room")) CreateRoom(trimText);
             }
             else
             {
@@ -145,12 +146,13 @@ namespace IziChat
             _client.On<CreateRoom>(_client_AddRoom);
         }
 
+        /*
         private void CreateRoom(string text)
         {
             if (string.IsNullOrEmpty(text)) text = "default";
             _client.CreateRoom(text, ClientData.Users.Where(user => user.IsSelected).Select(user => user.UserName).ToList());
         }
-
+        */
         private void _client_AddRoom(object sender, CreateRoom e)
         {
             Rooms.Add(new RoomViewModel()
@@ -211,15 +213,26 @@ namespace IziChat
         private void MenuItem_OnClick(object sender, RoutedEventArgs e)
         {
             var txt = (sender as TextBox) ?? new TextBox() { Text = "" };
-            CreateRoom(txt.Text);
+            //CreateRoom(txt.Text);
         }
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
-            _room = new RoomWindow(Main) {Owner = this};
-            
+            _room = new RoomWindow(Main) { Owner = this };
+            _room.CreateRoom += _room_CreateRoom;
             _room.Show();
-            
+        }
+
+        private void _room_CreateRoom(object sender, List<string> usernames)
+        {
+            var roomName = sender as string;
+            if (string.IsNullOrEmpty(roomName)) return;
+            //ClientData.Users.Where(users => users.IsSelected).All(u => u.IsSelected = false);
+            foreach (var user in ClientData.Users.Where(users => users.IsSelected))
+            {
+                user.IsSelected = false;
+            }
+            _client.CreateRoom(roomName, usernames);
         }
     }
 }

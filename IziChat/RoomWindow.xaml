@@ -50,6 +50,6 @@
 
         </ScrollViewer>
         <Button Grid.Row="2" Grid.Column="1"
-                Content="Create Room" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="9" />
+                Content="Create Room" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="9" Click="ButtonBase_OnClick" />
     </Grid>
 </controls:MetroWindow>
