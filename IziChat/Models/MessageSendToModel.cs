@@ -10,7 +10,10 @@ namespace IziChat.Models
 {
     public class MessageSendToModel : INotifyPropertyChanged
     {
-        private string _displayName, _id;
+        private string _displayName;
+        private Guid _id;
+        private Types _type;
+
         public string DisplayName {
             get { return _displayName; }
             set
@@ -19,7 +22,7 @@ namespace IziChat.Models
                 PropertyChanged?.Invoke(this,new PropertyChangedEventArgs("DisplayName"));
             }
         }
-        public string Id {
+        public Guid Id {
             get { return _id; }
             set
             {
@@ -28,7 +31,22 @@ namespace IziChat.Models
             }
         }
 
+        public Types Type
+        {
+            get { return _type; }
+            set
+            {
+                _type = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Type"));
+            }
+        }
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public enum Types
+        {
+            Broadcast,
+            Unicast,
+            Room
+        }
     }
 }

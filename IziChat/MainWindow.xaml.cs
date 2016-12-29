@@ -137,14 +137,30 @@ namespace IziChat
 
             if (txt == null || txt.Text.Trim() == "") return;
             var trimText = txt.Text.Trim();
+            switch (MessageSendTo.Type)
+            {
+               
+                case MessageSendToModel.Types.Room:
+                    _client.SendRoomMessage(trimText,MessageSendTo.Id);
+                    break;
+                case MessageSendToModel.Types.Unicast:
+                    _client.SendUnicastMessage(trimText,MessageSendTo.DisplayName);
+                    break;
+                case MessageSendToModel.Types.Broadcast:
+                default:
+                    _client.SendBroadcastMessage(trimText);
+                    break;
+            }
+            /*
             if (trimText.StartsWith("/"))
             {
                 if (trimText.Contains("/room")) CreateRoom_OnClick(null,null);
             }
             else
             {
-                _client.SendBroadcastMessage(trimText);
+               
             }
+            */
             txt.Text = "";
         }
 
@@ -155,9 +171,40 @@ namespace IziChat
             _client.Disconnected += _client_Disconnected;
             await _client.Connect();
             _client.On<BroadcastMessage>(_client_BroadcastMessageReceived);
+            _client.On<RoomMessage>(_client_RoomMessageReceived);
+            _client.On<UnicastMessage>(_client_UnicastMessageReceived);
             _client.On<ClientStatusChanged>(_client_ClientStatusChanged);
             _client.On<StatusReport>(_client_StatusReport);
             _client.On<CreateRoom>(_client_AddRoom);
+        }
+
+        private void _client_RoomMessageReceived(object sender, RoomMessage e)
+        {
+            Messages.Add(new MessageViewModel() {
+                Username = e.Username, DateTime = e.DateTime,
+                Message = e.Message,
+                Metadata = e.RoomId.ToString()
+            });
+        }
+
+        private void _client_UnicastMessageReceived(object sender, UnicastMessage e)
+        {
+            Messages.Add(new MessageViewModel()
+            {
+                Username = e.Username, DateTime = e.DateTime,
+                Message = e.Message,
+                Metadata = e.UserReciever
+            });
+        }
+        private void _client_BroadcastMessageReceived(object sender, BroadcastMessage e)
+        {
+            //if(Messages.Count > 500) Messages.RemoveAt(0);
+            Messages.Add(new MessageViewModel()
+            {
+                Username = e.Username, DateTime = e.DateTime,
+                Message = e.Message,
+                Metadata = "Home"
+            });
         }
 
         private void _client_AddRoom(object sender, CreateRoom e)
@@ -189,11 +236,7 @@ namespace IziChat
             else ClientData.Users.Add(new UserViewModel() { UserName = e.Username });
         }
 
-        private void _client_BroadcastMessageReceived(object sender, BroadcastMessage e)
-        {
-            //if(Messages.Count > 500) Messages.RemoveAt(0);
-            Messages.Add(new MessageViewModel() { Username = e.Username, DateTime = e.DateTime, Message = e.Message });
-        }
+        
 
         private void _client_Disconnected(object sender, EventArgs e)
         {
@@ -240,12 +283,20 @@ namespace IziChat
         }
 
 
-        private void Control_OnMouseClick(object sender, MouseButtonEventArgs e)
+        private void Room_OnMouseClick(object sender, MouseButtonEventArgs e)
         {
             var s = sender as TreeViewItem;
             MessageSendTo.DisplayName = s.Header.ToString();
-            MessageSendTo.Id = s.Tag.ToString();
-            var type = sender.GetType();
+            MessageSendTo.Id = new Guid(s.Tag.ToString());
+            MessageSendTo.Type= MessageSendToModel.Types.Room;
+        }
+
+        private void User_OnClick(object sender, RoutedEventArgs e)
+        {
+            var s = sender as Button;
+            MessageSendTo.DisplayName = s.Content.ToString();
+            //MessageSendTo.Id = new Guid("");
+            MessageSendTo.Type = MessageSendToModel.Types.Unicast;
         }
     }
 }

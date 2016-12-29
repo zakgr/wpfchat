@@ -80,7 +80,15 @@ namespace ChatLib
             };
             Write(command);
         }
-
+        public void SendUnicastMessage(string sendMessage, string userReciever)
+        {
+            var command = new UnicastMessage()
+            {
+                UserReciever = userReciever,
+                Message = sendMessage
+            };
+            Write(command);
+        }
         public void SendRoomMessage(string sendMessage, Guid roomId)
         {
             var command = new RoomMessage()

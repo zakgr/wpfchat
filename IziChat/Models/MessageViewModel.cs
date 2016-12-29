@@ -9,5 +9,6 @@ namespace IziChat.Models
         public string Username { get; set; }
 
         public string Message { get; set; }
+        public string Metadata { get; set; }
     }
 }

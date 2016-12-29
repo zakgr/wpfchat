@@ -108,7 +108,8 @@
                                                 <Button Style="{StaticResource MaterialDesignFlatButton}"
                                                         Content="{Binding UserName}"
                                                         VerticalAlignment="Center"
-                                                        Padding="4" />
+                                                        Padding="4" 
+                                                        Click="User_OnClick"/>
                                             </Grid>
                                         </Border>
                                     </DataTemplate>
@@ -125,7 +126,7 @@
                                 ItemsSource="{Binding Path=Rooms}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate DataType="models:RoomViewModel">
-                                        <TreeViewItem Header="{Binding RoomName}" Tag="{Binding RoomId}" MouseLeftButtonUp="Control_OnMouseClick">
+                                        <TreeViewItem Header="{Binding RoomName}" Tag="{Binding RoomId}" MouseLeftButtonUp="Room_OnMouseClick">
                                             <ListBox ItemsSource="{Binding UserNames}" Margin="-5">
                                                 <ListBox.ItemTemplate>
                                                     <DataTemplate>

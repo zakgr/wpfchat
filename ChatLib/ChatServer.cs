@@ -21,9 +21,12 @@ namespace ChatLib
             _portno = portno;
             On<ClientStatusChanged>(OnStatusChanged);
             On<BroadcastMessage>(OnBroadcastMessage);
+            On<UnicastMessage>(OnUnicastMessage);
             On<CreateRoom>(OnCreateRoom);
             On<RoomMessage>(OnRoomMessage);
         }
+
+        
 
         public void Run()
         {
@@ -103,10 +106,16 @@ namespace ChatLib
                 client.Write(JsonConvert.SerializeObject(new CommandWrapper() { Type = message.GetType(), Overhead = message }));
             }
         }
-
+        private void OnUnicastMessage(object sender, UnicastMessage e)
+        {
+            var user = Users.Where(kv => e.UserReciever==kv.Key||e.Username==kv.Key).Select(kv => kv.Key).ToList();
+            e.Username = Users.FindByClient((sender as ClientOperator)?.TcpClient);
+            UniCast(e,user);
+        }
         private void OnRoomMessage(object sender, RoomMessage e)
         {
             var users = Rooms.FirstOrDefault(kv => kv.Key == e.RoomId).Value;
+            e.Username = Users.FindByClient((sender as ClientOperator)?.TcpClient);
             UniCast(e,users);
         }
 
