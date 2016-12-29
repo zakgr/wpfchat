@@ -21,6 +21,7 @@ namespace IziChat
     // ReSharper disable once RedundantExtendsListEntry
     public partial class MainWindow : MetroWindow
     {
+        public static RoutedCommand CreateRoomCommand = new RoutedCommand();
 
         private RoomWindow _room;
         public StatusConnection StatusClient
@@ -79,6 +80,8 @@ namespace IziChat
         {
 
             InitializeComponent();
+            CreateRoomCommand.InputGestures.Add(new KeyGesture(Key.R, ModifierKeys.Control));
+            CommandBindings.Add(new CommandBinding(CreateRoomCommand, CreateRoom_OnClick));
             Settings = !File.Exists("settings.json") ? new ChatSettings() { IpAddress = "127.0.0.1", Username = "default" } : JsonConvert.DeserializeObject<ChatSettings>(File.ReadAllText("settings.json"));
             File.WriteAllText("settings.json", JsonConvert.SerializeObject(Settings));
             _client = new ChatClient(IPAddress.Parse(Settings.IpAddress), 3000, Settings.Username);
@@ -125,7 +128,7 @@ namespace IziChat
             var trimText = txt.Text.Trim();
             if (trimText.StartsWith("/"))
             {
-                //if (trimText.Contains("/room")) CreateRoom(trimText);
+                if (trimText.Contains("/room")) CreateRoom_OnClick(null,null);
             }
             else
             {
@@ -146,13 +149,6 @@ namespace IziChat
             _client.On<CreateRoom>(_client_AddRoom);
         }
 
-        /*
-        private void CreateRoom(string text)
-        {
-            if (string.IsNullOrEmpty(text)) text = "default";
-            _client.CreateRoom(text, ClientData.Users.Where(user => user.IsSelected).Select(user => user.UserName).ToList());
-        }
-        */
         private void _client_AddRoom(object sender, CreateRoom e)
         {
             Rooms.Add(new RoomViewModel()
@@ -209,15 +205,12 @@ namespace IziChat
         }
 
 
-
-        private void MenuItem_OnClick(object sender, RoutedEventArgs e)
+        private void CreateRoom_OnClick(object sender, RoutedEventArgs e)
         {
-            var txt = (sender as TextBox) ?? new TextBox() { Text = "" };
-            //CreateRoom(txt.Text);
-        }
-
-        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
-        {
+            foreach (var user in ClientData.Users.Where(users => users.IsSelected))
+            {
+                user.IsSelected = false;
+            }
             _room = new RoomWindow(Main) { Owner = this };
             _room.CreateRoom += _room_CreateRoom;
             _room.Show();
@@ -226,13 +219,13 @@ namespace IziChat
         private void _room_CreateRoom(object sender, List<string> usernames)
         {
             var roomName = sender as string;
-            if (string.IsNullOrEmpty(roomName)) return;
-            //ClientData.Users.Where(users => users.IsSelected).All(u => u.IsSelected = false);
-            foreach (var user in ClientData.Users.Where(users => users.IsSelected))
-            {
-                user.IsSelected = false;
-            }
+            //if (string.IsNullOrEmpty(roomName)| usernames.Count==0) return;
             _client.CreateRoom(roomName, usernames);
+        }
+
+        private void CloseCommandHandler(object sender, ExecutedRoutedEventArgs e)
+        {  
+            this.Close();
         }
     }
 }

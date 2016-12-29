@@ -25,7 +25,10 @@
                       Background="{DynamicResource MaterialDesignPaper}"
                       FontFamily="{DynamicResource MaterialDesignFont}"
                       DataContext="{Binding RelativeSource={RelativeSource Self}}">
-
+    <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.Close"
+                        Executed="CloseCommandHandler" />
+    </Window.CommandBindings>
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -34,11 +37,13 @@
             <converters:OneCharConverter x:Key="ConverterOneChar" />
             <converters:UserCheckConverter x:Key="ConverterUserCheck" />
             <mockData:MockMessages x:Key="MockMessages" />
+            <mockData:MockUsers x:Key="MockUsers" />
             <mockData:MockRooms x:Key="MockRooms" />
         </ResourceDictionary>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -47,18 +52,51 @@
             <ColumnDefinition Width="1*" MaxWidth="250" MinWidth="150" />
             <ColumnDefinition Width="3*" />
         </Grid.ColumnDefinitions>
+        <Border Grid.Row="0" Grid.ColumnSpan="2" BorderThickness="0,0,0,1" BorderBrush="#44000000">
+            <DockPanel>
+                <Menu DockPanel.Dock="Top">
+                    <MenuItem Header="File">
+                        <MenuItem Command="New" />
+                        <Separator />
+                        <MenuItem Header="Exit" Command="ApplicationCommands.Close" />
+                    </MenuItem>
+                    <MenuItem Header="Edit">
+                        <MenuItem Command="Cut">
+                            <MenuItem.Icon>
+                                <materialDesign:PackIcon Kind="ContentCut" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Command="Copy">
+                            <MenuItem.Icon>
+                                <materialDesign:PackIcon Kind="ContentCopy" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Command="Paste">
+                            <MenuItem.Icon>
+                                <materialDesign:PackIcon Kind="ContentPaste" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </MenuItem>
+                    <MenuItem Header="Room">
+                        <MenuItem Header="Create Room    Ctrl+R"
+                                  Command="{x:Static local:MainWindow.CreateRoomCommand}" />
+                    </MenuItem>
+                </Menu>
+            </DockPanel>
+        </Border>
 
-        <Border Grid.Row="0" Grid.RowSpan="2" BorderThickness="0,0,1,0" BorderBrush="#44000000" Background="#11000000">
+        <Border Grid.Row="1" Grid.RowSpan="2" BorderThickness="0,0,1,0" BorderBrush="#44000000" Background="#11000000">
             <Grid>
                 <TabControl>
                     <TabItem Header="Online users">
                         <ScrollViewer Name="Users" VerticalScrollBarVisibility="Auto"
                                       HorizontalScrollBarVisibility="Disabled">
                             <ItemsControl ItemsSource="{Binding Path=(local:ClientData.Users)}"
+                                          d:DataContext="{Binding Source={StaticResource MockUsers}}"
                                           Grid.IsSharedSizeScope="True">
                                 <ItemsControl.ContextMenu>
                                     <ContextMenu>
-                                        <MenuItem Header="Create Room" Click="MenuItem_OnClick" />
+                                        <MenuItem Header="Create Room" Click="CreateRoom_OnClick" />
                                     </ContextMenu>
                                 </ItemsControl.ContextMenu>
                                 <ItemsControl.ItemTemplate>
@@ -66,26 +104,12 @@
                                         <Border x:Name="Border" Padding="5" BorderThickness="0 0 0 1"
                                                 BorderBrush="{DynamicResource MaterialDesignDivider}">
                                             <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition SharedSizeGroup="Checkerz" />
-                                                    <ColumnDefinition />
-                                                </Grid.ColumnDefinitions>
-                                                <!-- ReSharper disable once Xaml.StaticResourceNotResolved -->
-                                                <ToggleButton VerticalAlignment="Center"
-                                                              IsChecked="{Binding IsSelected}"
-                                                              Style="{StaticResource MaterialDesignActionLightToggleButton}" />
-                                                <TextBlock Grid.Column="1" Text="{Binding UserName}"
-                                                           VerticalAlignment="Center"
-                                                           Padding="4" />
-
+                                                <Button Style="{StaticResource MaterialDesignFlatButton}"
+                                                        Content="{Binding UserName}"
+                                                        VerticalAlignment="Center"
+                                                        Padding="4" />
                                             </Grid>
                                         </Border>
-                                        <DataTemplate.Triggers>
-                                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                                <Setter TargetName="Border" Property="Background"
-                                                        Value="{DynamicResource MaterialDesignSelection}" />
-                                            </DataTrigger>
-                                        </DataTemplate.Triggers>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
@@ -101,12 +125,10 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate DataType="models:RoomViewModel">
                                         <TreeViewItem Header="{Binding RoomName}">
-                                            <ListBox ItemsSource="{Binding UserNames}">
+                                            <ListBox ItemsSource="{Binding UserNames}" Margin="-5">
                                                 <ListBox.ItemTemplate>
                                                     <DataTemplate>
-                                                        <StackPanel Orientation="Vertical">
-                                                            <TextBlock Text="{Binding}" />
-                                                        </StackPanel>
+                                                        <TextBlock Text="{Binding}" />
                                                     </DataTemplate>
                                                 </ListBox.ItemTemplate>
                                             </ListBox>
@@ -119,13 +141,13 @@
                     </TabItem>
                 </TabControl>
                 <Button Style="{StaticResource MaterialDesignFloatingActionButton}" HorizontalAlignment="Left"
-                        VerticalAlignment="Bottom" Click="ButtonBase_OnClick">
+                        VerticalAlignment="Bottom" Click="CreateRoom_OnClick">
                     <materialDesign:PackIcon Kind="Plus" />
                 </Button>
             </Grid>
         </Border>
 
-        <ItemsControl Grid.Row="0" Grid.Column="1" ItemsSource="{Binding Path=Messages}"
+        <ItemsControl Grid.Row="1" Grid.Column="1" ItemsSource="{Binding Path=Messages}"
                       d:DataContext="{Binding Source={StaticResource MockMessages}}"
                       VirtualizingStackPanel.IsVirtualizing="True"
                       ScrollViewer.CanContentScroll="True"
@@ -175,7 +197,7 @@
         </ItemsControl>
 
         <TextBox
-            Grid.Row="1"
+            Grid.Row="2"
             Grid.Column="1"
             AcceptsReturn="False"
             AcceptsTab="False"
@@ -183,7 +205,7 @@
             Padding="8"
             TextWrapping="Wrap"
             Style="{StaticResource ChatTextBox}" />
-        <StatusBar Grid.Row="2" Grid.ColumnSpan="2" Grid.Column="0">
+        <StatusBar Grid.Row="3" Grid.ColumnSpan="2" Grid.Column="0">
             <StackPanel Orientation="Horizontal">
                 <StatusBarItem>
                     <TextBlock Text="{Binding Path=StatusClient.Status}" />

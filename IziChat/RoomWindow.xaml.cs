@@ -46,7 +46,7 @@ namespace IziChat
         {
             var roomName = RoomName.Text.Trim();
             var users = ClientData.Users.Where(user => user.IsSelected).Select(user => user.UserName).ToList();
-            if (string.IsNullOrEmpty(roomName)) return;
+            if (string.IsNullOrEmpty(roomName)|users.Count==0) return;
             CreateRoom?.Invoke(roomName, users);
             this.Close();
         }
