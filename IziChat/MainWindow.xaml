@@ -44,6 +44,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -85,7 +86,7 @@
             </DockPanel>
         </Border>
 
-        <Border Grid.Row="1" Grid.RowSpan="2" BorderThickness="0,0,1,0" BorderBrush="#44000000" Background="#11000000">
+        <Border Grid.Row="1" Grid.RowSpan="3" Grid.Column="0" BorderThickness="0,0,1,0" BorderBrush="#44000000" Background="#11000000">
             <Grid>
                 <TabControl>
                     <TabItem Header="Online users">
@@ -124,7 +125,7 @@
                                 ItemsSource="{Binding Path=Rooms}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate DataType="models:RoomViewModel">
-                                        <TreeViewItem Header="{Binding RoomName}">
+                                        <TreeViewItem Header="{Binding RoomName}" Tag="{Binding RoomId}" MouseLeftButtonUp="Control_OnMouseClick">
                                             <ListBox ItemsSource="{Binding UserNames}" Margin="-5">
                                                 <ListBox.ItemTemplate>
                                                     <DataTemplate>
@@ -146,8 +147,13 @@
                 </Button>
             </Grid>
         </Border>
+        <Border Grid.Row="1" Grid.Column="1" BorderThickness="0,0,1,1" BorderBrush="#44000000" >
 
-        <ItemsControl Grid.Row="1" Grid.Column="1" ItemsSource="{Binding Path=Messages}"
+            <TextBlock x:Name="DisplayName"  Text="{Binding Path= MessageSendTo.DisplayName, UpdateSourceTrigger=PropertyChanged}" Margin="10"/>
+                    
+        </Border>
+        
+        <ItemsControl Grid.Row="2" Grid.Column="1" ItemsSource="{Binding Path=Messages}"
                       d:DataContext="{Binding Source={StaticResource MockMessages}}"
                       VirtualizingStackPanel.IsVirtualizing="True"
                       ScrollViewer.CanContentScroll="True"
@@ -175,7 +181,6 @@
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
-
                 <DataTemplate DataType="models:MessageViewModel">
 
                     <local:MessageControl
@@ -197,7 +202,7 @@
         </ItemsControl>
 
         <TextBox
-            Grid.Row="2"
+            Grid.Row="3"
             Grid.Column="1"
             AcceptsReturn="False"
             AcceptsTab="False"
@@ -205,7 +210,7 @@
             Padding="8"
             TextWrapping="Wrap"
             Style="{StaticResource ChatTextBox}" />
-        <StatusBar Grid.Row="3" Grid.ColumnSpan="2" Grid.Column="0">
+        <StatusBar Grid.Row="4" Grid.ColumnSpan="2" Grid.Column="0">
             <StackPanel Orientation="Horizontal">
                 <StatusBarItem>
                     <TextBlock Text="{Binding Path=StatusClient.Status}" />

@@ -29,6 +29,12 @@ namespace ChatLib.Models
         public string Username { get; set; }
     }
 
+    public class UnicastMessage : BaseCommand
+    {
+        public string Message { get; set; }
+        public string Username { get; set; }
+        public string UserReciever { get; set; }
+    }
     public class RoomMessage : BaseCommand
     {
         public string Message { get; set; }

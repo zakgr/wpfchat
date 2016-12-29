@@ -68,6 +68,16 @@ namespace IziChat
             get { return (string)GetValue(IpProperty); }
             set { SetValue(IpProperty, value); }
         }
+
+        public static readonly DependencyProperty PropertyTypeProperty = DependencyProperty.Register(
+            "MessageSendTo", typeof(MessageSendToModel), typeof(MainWindow), new PropertyMetadata(default(MessageSendToModel)));
+
+        public MessageSendToModel MessageSendTo     
+        {
+            get { return (MessageSendToModel) GetValue(PropertyTypeProperty); }
+            set { SetValue(PropertyTypeProperty, value); }
+        }
+
         public static readonly DependencyProperty SettingsProperty = DependencyProperty.Register(
             "Settings", typeof(ChatSettings), typeof(MainWindow), new PropertyMetadata(default(ChatSettings)));
 
@@ -88,6 +98,7 @@ namespace IziChat
             Messages = new ObservableCollection<MessageViewModel>();
             Rooms = new ObservableCollection<RoomViewModel>();
             StatusClient = new StatusConnection();
+            MessageSendTo = new MessageSendToModel();
         }
 
         //private void _client_MessageReceived(object sender, Command<BroadcastMessage> e)
@@ -226,6 +237,15 @@ namespace IziChat
         private void CloseCommandHandler(object sender, ExecutedRoutedEventArgs e)
         {  
             this.Close();
+        }
+
+
+        private void Control_OnMouseClick(object sender, MouseButtonEventArgs e)
+        {
+            var s = sender as TreeViewItem;
+            MessageSendTo.DisplayName = s.Header.ToString();
+            MessageSendTo.Id = s.Tag.ToString();
+            var type = sender.GetType();
         }
     }
 }
