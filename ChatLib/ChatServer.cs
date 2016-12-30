@@ -108,14 +108,15 @@ namespace ChatLib
         }
         private void OnUnicastMessage(object sender, UnicastMessage e)
         {
-            var user = Users.Where(kv => e.UserReciever==kv.Key||e.Username==kv.Key).Select(kv => kv.Key).ToList();
             e.Username = Users.FindByClient((sender as ClientOperator)?.TcpClient);
+            var user = Users.Where(kv => e.UserReciever==kv.Key||e.Username==kv.Key).Select(kv => kv.Key).ToList();
+            user.Add(e.Username);
             UniCast(e,user);
         }
         private void OnRoomMessage(object sender, RoomMessage e)
         {
-            var users = Rooms.FirstOrDefault(kv => kv.Key == e.RoomId).Value;
             e.Username = Users.FindByClient((sender as ClientOperator)?.TcpClient);
+            var users = Rooms.FirstOrDefault(kv => kv.Key == e.RoomId).Value;
             UniCast(e,users);
         }
 

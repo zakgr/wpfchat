@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace IziChat.Models
 {
-    public class MessageSendToModel : INotifyPropertyChanged
+    public class DisplayInfoModel : INotifyPropertyChanged
     {
         private string _displayName;
         private Guid _id;

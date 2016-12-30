@@ -150,7 +150,7 @@
         </Border>
         <Border Grid.Row="1" Grid.Column="1" BorderThickness="0,0,1,1" BorderBrush="#44000000" >
 
-            <TextBlock x:Name="DisplayName"  Text="{Binding Path= MessageSendTo.DisplayName, UpdateSourceTrigger=PropertyChanged}" Margin="10"/>
+            <TextBlock Text="{Binding Path= DisplayInfo.DisplayName, UpdateSourceTrigger=PropertyChanged}" Margin="10"/>
                     
         </Border>
         

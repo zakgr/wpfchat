@@ -85,7 +85,7 @@
     <Compile Include="Converters\AligmentToNumberConverter.cs" />
     <Compile Include="MessageControl.cs" />
     <Compile Include="MockData\MockUsers.cs" />
-    <Compile Include="Models\MessageSendToModel.cs" />
+    <Compile Include="Models\DisplayInfoModel.cs" />
     <Compile Include="Models\MessageViewModel.cs" />
     <Compile Include="MockData\MockMessages.cs" />
     <Compile Include="MockData\MockRooms.cs" />

@@ -23,6 +23,7 @@ namespace IziChat
     {
         public static RoutedCommand CreateRoomCommand = new RoutedCommand();
 
+        private event EventHandler<string> MessageWpfShow;
         private RoomWindow _room;
         public StatusConnection StatusClient
         {
@@ -46,10 +47,14 @@ namespace IziChat
         public static readonly DependencyProperty RoomsProperty =
             DependencyProperty.Register("Rooms", typeof(ObservableCollection<RoomViewModel>), typeof(MainWindow), new PropertyMetadata(null));
 
+        private readonly List<MessageViewModel> _messagesRevieved;
 
-        public ObservableCollection<MessageViewModel> Messages
+        public ObservableCollection<MessageViewModel> MessagesWpf
         {
-            get { return (ObservableCollection<MessageViewModel>)GetValue(MessagesProperty); }
+            get
+            {
+                return (ObservableCollection<MessageViewModel>)GetValue(MessagesProperty);
+            }
             set { SetValue(MessagesProperty, value); }
         }
 
@@ -70,11 +75,11 @@ namespace IziChat
         }
 
         public static readonly DependencyProperty PropertyTypeProperty = DependencyProperty.Register(
-            "MessageSendTo", typeof(MessageSendToModel), typeof(MainWindow), new PropertyMetadata(default(MessageSendToModel)));
+            "DisplayInfo", typeof(DisplayInfoModel), typeof(MainWindow), new PropertyMetadata(default(DisplayInfoModel)));
 
-        public MessageSendToModel MessageSendTo     
+        public DisplayInfoModel DisplayInfo
         {
-            get { return (MessageSendToModel) GetValue(PropertyTypeProperty); }
+            get { return (DisplayInfoModel)GetValue(PropertyTypeProperty); }
             set { SetValue(PropertyTypeProperty, value); }
         }
 
@@ -95,11 +100,35 @@ namespace IziChat
             Settings = !File.Exists("settings.json") ? new ChatSettings() { IpAddress = "127.0.0.1", Username = "default" } : JsonConvert.DeserializeObject<ChatSettings>(File.ReadAllText("settings.json"));
             File.WriteAllText("settings.json", JsonConvert.SerializeObject(Settings));
             _client = new ChatClient(IPAddress.Parse(Settings.IpAddress), 3000, Settings.Username);
-            Messages = new ObservableCollection<MessageViewModel>();
+            _messagesRevieved = new List<MessageViewModel>();
+            MessagesWpf = new ObservableCollection<MessageViewModel>();
+            MessageWpfShow += MessageWpfShowEvent;
             Rooms = new ObservableCollection<RoomViewModel>();
             StatusClient = new StatusConnection();
-            MessageSendTo = new MessageSendToModel();
+            DisplayInfo = new DisplayInfoModel() { DisplayName = "Home" };
         }
+
+        private void MessageWpfShowEvent(object sender, string e)
+        {
+            var target = DisplayInfo.Type == DisplayInfoModel.Types.Room
+                ? DisplayInfo.Id.ToString()
+                : DisplayInfo.DisplayName;
+            if (e == "Recieved")
+            {
+                var message = sender as MessageViewModel;
+                if (message?.TargetInfo == target) MessagesWpf.Add(message);
+            }
+            else
+            {
+                MessagesWpf.Clear();
+                foreach (var messageView in _messagesRevieved.Where(m => m.TargetInfo.Contains(target)))
+                {
+                    MessagesWpf.Add(messageView);
+                }
+            }
+
+        }
+
 
         //private void _client_MessageReceived(object sender, Command<BroadcastMessage> e)
         //{
@@ -137,16 +166,16 @@ namespace IziChat
 
             if (txt == null || txt.Text.Trim() == "") return;
             var trimText = txt.Text.Trim();
-            switch (MessageSendTo.Type)
+            switch (DisplayInfo.Type)
             {
-               
-                case MessageSendToModel.Types.Room:
-                    _client.SendRoomMessage(trimText,MessageSendTo.Id);
+
+                case DisplayInfoModel.Types.Room:
+                    _client.SendRoomMessage(trimText, DisplayInfo.Id);
                     break;
-                case MessageSendToModel.Types.Unicast:
-                    _client.SendUnicastMessage(trimText,MessageSendTo.DisplayName);
+                case DisplayInfoModel.Types.Unicast:
+                    _client.SendUnicastMessage(trimText, DisplayInfo.DisplayName);
                     break;
-                case MessageSendToModel.Types.Broadcast:
+                case DisplayInfoModel.Types.Broadcast:
                 default:
                     _client.SendBroadcastMessage(trimText);
                     break;
@@ -180,31 +209,44 @@ namespace IziChat
 
         private void _client_RoomMessageReceived(object sender, RoomMessage e)
         {
-            Messages.Add(new MessageViewModel() {
-                Username = e.Username, DateTime = e.DateTime,
+            var message = new MessageViewModel()
+            {
+                Username = e.Username,
+                DateTime = e.DateTime,
                 Message = e.Message,
-                Metadata = e.RoomId.ToString()
-            });
+                TargetInfo = e.RoomId.ToString()
+            };
+            _messagesRevieved.Add(message);
+            MessageWpfShow?.Invoke(message, "Recieved");
         }
 
         private void _client_UnicastMessageReceived(object sender, UnicastMessage e)
         {
-            Messages.Add(new MessageViewModel()
+            var localuser = Settings.Username + Ip;
+            var message = new MessageViewModel()
             {
-                Username = e.Username, DateTime = e.DateTime,
+                Username = e.Username,
+                DateTime = e.DateTime,
                 Message = e.Message,
-                Metadata = e.UserReciever
-            });
+                TargetInfo = localuser == e.Username ? e.UserReciever : e.Username
+            };
+            _messagesRevieved.Add(message);
+            MessageWpfShow?.Invoke(message, "Recieved");
+
+
         }
         private void _client_BroadcastMessageReceived(object sender, BroadcastMessage e)
         {
             //if(Messages.Count > 500) Messages.RemoveAt(0);
-            Messages.Add(new MessageViewModel()
+            var message = new MessageViewModel()
             {
-                Username = e.Username, DateTime = e.DateTime,
+                Username = e.Username,
+                DateTime = e.DateTime,
                 Message = e.Message,
-                Metadata = "Home"
-            });
+                TargetInfo = "Home"
+            };
+            _messagesRevieved.Add(message);
+            MessageWpfShow?.Invoke(message, "Recieved");
         }
 
         private void _client_AddRoom(object sender, CreateRoom e)
@@ -236,7 +278,7 @@ namespace IziChat
             else ClientData.Users.Add(new UserViewModel() { UserName = e.Username });
         }
 
-        
+
 
         private void _client_Disconnected(object sender, EventArgs e)
         {
@@ -278,7 +320,7 @@ namespace IziChat
         }
 
         private void CloseCommandHandler(object sender, ExecutedRoutedEventArgs e)
-        {  
+        {
             this.Close();
         }
 
@@ -286,17 +328,20 @@ namespace IziChat
         private void Room_OnMouseClick(object sender, MouseButtonEventArgs e)
         {
             var s = sender as TreeViewItem;
-            MessageSendTo.DisplayName = s.Header.ToString();
-            MessageSendTo.Id = new Guid(s.Tag.ToString());
-            MessageSendTo.Type= MessageSendToModel.Types.Room;
+            DisplayInfo.DisplayName = s.Header.ToString();
+            DisplayInfo.Id = new Guid(s.Tag.ToString());
+            DisplayInfo.Type = DisplayInfoModel.Types.Room;
+            MessageWpfShow?.Invoke(null, null);
+
         }
 
         private void User_OnClick(object sender, RoutedEventArgs e)
         {
             var s = sender as Button;
-            MessageSendTo.DisplayName = s.Content.ToString();
-            //MessageSendTo.Id = new Guid("");
-            MessageSendTo.Type = MessageSendToModel.Types.Unicast;
+            DisplayInfo.DisplayName = s.Content.ToString();
+            DisplayInfo.Type = DisplayInfoModel.Types.Unicast;
+            MessageWpfShow?.Invoke(null, null);
+
         }
     }
 }
