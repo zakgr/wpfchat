@@ -263,6 +263,7 @@ namespace IziChat
         {
             ClientData.Users =
                 new ObservableCollection<UserViewModel>(e.Usernames.Select(u => new UserViewModel() { UserName = u }));
+            ClientData.Users.Remove(ClientData.Users.Single(user => user.UserName == Settings.Username+Ip));
         }
 
         private void _client_ClientStatusChanged(object sender, ClientStatusChanged e)
@@ -342,6 +343,13 @@ namespace IziChat
             DisplayInfo.Type = DisplayInfoModel.Types.Unicast;
             MessageWpfShow?.Invoke(null, null);
 
+        }
+
+        private void Home_OnClick(object sender, RoutedEventArgs e)
+        {
+            DisplayInfo.DisplayName = "Home";
+            DisplayInfo.Type = DisplayInfoModel.Types.Broadcast;
+            MessageWpfShow?.Invoke(null, null);
         }
     }
 }
