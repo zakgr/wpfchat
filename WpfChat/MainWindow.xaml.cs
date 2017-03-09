@@ -9,6 +9,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using ChatLib;
 using ChatLib.Models;
+using MahApps.Metro.Controls;
+using Newtonsoft.Json;
 using WpfChat.Models;
 
 namespace WpfChat
