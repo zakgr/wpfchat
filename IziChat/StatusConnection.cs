@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Windows;
 
-namespace IziChat
+namespace WpfChat
 {
     public class StatusConnection :INotifyPropertyChanged
     {

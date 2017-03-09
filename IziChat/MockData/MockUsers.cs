@@ -1,8 +1,7 @@
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using IziChat.Models;
+using WpfChat.Models;
 
-namespace IziChat.MockData
+namespace WpfChat.MockData
 {
     class MockUsers
     {

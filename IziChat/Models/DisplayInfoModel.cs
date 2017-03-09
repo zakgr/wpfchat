@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace IziChat.Models
+namespace WpfChat.Models
 {
     public class DisplayInfoModel : INotifyPropertyChanged
     {

@@ -1,19 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using ChatLib;
-using System.IO;
 using ChatLib.Models;
-using IziChat.Models;
-using MahApps.Metro.Controls;
-using Newtonsoft.Json;
-using System.Collections.Generic;
+using WpfChat.Models;
 
-namespace IziChat
+namespace WpfChat
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

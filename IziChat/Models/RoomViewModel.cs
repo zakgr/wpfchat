@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace IziChat.Models
+namespace WpfChat.Models
 {
     public class RoomViewModel
     {

@@ -1,6 +1,6 @@
 using System;
 
-namespace IziChat.Models
+namespace WpfChat.Models
 {
     public class MessageViewModel
     {

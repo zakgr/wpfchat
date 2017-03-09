@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Windows.Data;
 
-namespace IziChat.Converters
+namespace WpfChat.Converters
 {
     public class OneCharConverter: IValueConverter
     {
